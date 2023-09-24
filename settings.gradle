@@ -8,7 +8,6 @@
  */
 
 rootProject.name = 'RMIProject'
-include('app', 'list', 'utilities')
 
 include 'RMIClient'
 include 'RMIServer'
