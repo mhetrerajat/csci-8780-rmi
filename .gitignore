@@ -24,3 +24,33 @@ hs_err_pid*
 replay_pid*
 
 .DS_Store
+
+# Gradle files
+.gradle/
+build/
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+
+# Eclipse files
+.settings/
+.classpath
+.project
+bin/
+
+# Compiled class files
+*.class
+
+# Logs and temporary files
+*.log
+*.log.*
+*.tmp
+*.swp
+
+# User-specific files
+.gradle
+.gradle/
+.idea
+.DS_Store

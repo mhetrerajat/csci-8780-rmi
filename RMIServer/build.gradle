@@ -1,0 +1,8 @@
+plugins {
+    id 'java'
+}
+
+dependencies {
+    implementation project(':RMIInterfaces')
+    // Add any other dependencies specific to the RMIServer
+}

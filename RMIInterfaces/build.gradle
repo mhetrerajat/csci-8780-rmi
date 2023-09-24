@@ -1,0 +1,11 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // Add any dependencies required for the shared RMIInterfaces
+}
+
+jar {
+    // You may configure JAR settings specific to RMIInterfaces
+}
