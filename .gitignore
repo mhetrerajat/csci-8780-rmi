@@ -54,3 +54,5 @@ bin/
 .gradle/
 .idea
 .DS_Store
+
+.vscode
