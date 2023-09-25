@@ -2,6 +2,8 @@
 
 Distributed String Array with Concurrency Control Using Java RMI
 
+[Project Specification](./docs/RemoteStringArray-JavaRMI.pdf)
+
 ## Usage
 
 ### Build the Project
@@ -12,6 +14,7 @@ To build the project, execute the following commands:
 gradle clean
 gradle build
 ```
+
 ### Run the Application
 
 To run the application, follow these steps in order:
