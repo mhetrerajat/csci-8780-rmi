@@ -56,3 +56,5 @@ bin/
 .DS_Store
 
 .vscode
+# Ignore Gradle build output directory
+build
