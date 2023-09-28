@@ -22,11 +22,6 @@ dependencies {
 
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
-
-    // rmi
-//    implementation 'com.sun.jmx:jmxri:1.2.1'
-//    implementation 'com.sun.jdmk:jmxtools:1.2.1'
-//    implementation group: 'javax.management', name: 'jmxremote', version: '1.0.1'
 }
 
 application {

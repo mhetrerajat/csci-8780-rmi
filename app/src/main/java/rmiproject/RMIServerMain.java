@@ -5,8 +5,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.server.Unreferenced;
+import java.util.logging.Logger;
 
 public class RMIServerMain implements RMIInterface, Unreferenced {
+
+    private static final Logger logger = Logger.getLogger(RMIServerMain.class.getName());
 
     // Export remote objects once during initialization in the constructor, not
     // within methods called multiple times.
@@ -22,7 +25,7 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
         // Bind the remote object to the registry
         registry.rebind("RMIExample", stub);
 
-        System.out.println("Server is ready!");
+        logger.info("Server is ready!");
     }
 
     public static void main(String[] args) {
@@ -35,11 +38,11 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
 
     @Override
     public void unreferenced() {
-        System.out.println("Server is unreferenced. Shutting down gracefully...");
+        logger.warning("Server is unreferenced. Shutting down gracefully...");
 
         try {
             UnicastRemoteObject.unexportObject(this, true);
-            System.out.println("Server object unexported.");
+            logger.info("Server object unexported.");
         } catch (Exception e) {
             e.printStackTrace();
         }
