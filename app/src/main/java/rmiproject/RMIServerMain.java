@@ -13,7 +13,7 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
 
     // Export remote objects once during initialization in the constructor, not
     // within methods called multiple times.
-    public RMIServerMain() throws RemoteException {
+    public RMIServerMain(String bindName) throws RemoteException {
         super();
 
         // Get configuration values using ConfigReader
@@ -33,8 +33,15 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
     }
 
     public static void main(String[] args) {
+        if (args.length != 1) {
+            logger.severe("Usage: RMIServerMain <bindName>");
+            System.exit(1);
+        }
+
+        String bindName = args[0];
+
         try {
-            new RMIServerMain();
+            new RMIServerMain(bindName);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
