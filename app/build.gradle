@@ -39,27 +39,27 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// task to start the RMI Registry
-tasks.register('startRMIRegistry', JavaExec) {
-    description = 'Start the RMI Registry'
-    mainClass = 'sun.rmi.registry.RegistryImpl'
-    classpath = sourceSets.main.runtimeClasspath
-    args '1099'
-}
+// // task to start the RMI Registry
+// tasks.register('startRMIRegistry', JavaExec) {
+//     description = 'Start the RMI Registry'
+//     mainClass = 'sun.rmi.registry.RegistryImpl'
+//     classpath = sourceSets.main.runtimeClasspath
+//     args '1099'
+// }
 
 // task to run the RMI Client
 tasks.register('runRMIClient', JavaExec) {
     description = 'Run the RMI Client'
-    mainClass = 'RMIClientMain'
+    mainClass = 'rmiproject.RMIClientMain'
     classpath = sourceSets.main.runtimeClasspath
     args 'Hello, RMI Server!'
-    dependsOn tasks.startRMIRegistry
+    // dependsOn tasks.startRMIRegistry
 }
 
 // task to run the RMI Server
 tasks.register('runRMIServer', JavaExec) {
     description = 'Run the RMI Server'
-    mainClass = 'RMIServerMain'
+    mainClass = 'rmiproject.RMIServerMain'
     classpath = sourceSets.main.runtimeClasspath
-    dependsOn tasks.startRMIRegistry
+    // dependsOn tasks.startRMIRegistry
 }

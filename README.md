@@ -20,7 +20,6 @@ gradle build
 To run the application, follow these steps in order:
 
 ```bash
-gradle startRMIRegistry
 gradle runRMIServer
 gradle runRMIServer
 ```

@@ -22,6 +22,8 @@ public class RMIClientMain {
             // Call remote methods here, passing the message as an argument
             String response = remoteObject.sendMessage(message);
             System.out.println("Server Response: " + response);
+            // String response = remoteObject.sayHello();
+            // System.out.println("Response from server: " + response);
         } catch (Exception e) {
             e.printStackTrace();
         }
