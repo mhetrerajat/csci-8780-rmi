@@ -1,9 +1,10 @@
 package rmiproject;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.logging.Logger;
 
-public class RemoteStringArray implements RemoteStringArrayInterface {
+public class RemoteStringArray extends UnicastRemoteObject implements RemoteStringArrayInterface {
 
     private static final Logger logger = Logger.getLogger(RemoteStringArray.class.getName());
 
