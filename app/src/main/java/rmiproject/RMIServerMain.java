@@ -5,6 +5,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.server.Unreferenced;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class RMIServerMain implements Unreferenced {
@@ -21,15 +22,15 @@ public class RMIServerMain implements Unreferenced {
         // Get configuration values using ConfigReader
         Integer serverPort = ConfigReader.getServerPort();
         String bindName = ConfigReader.getRemoteObjectBindName();
+        Integer arrayCapacity = ConfigReader.getRemoteArrayCapacity();
+        List<String> initArray = ConfigReader.getRemoteArrayInitValue();
 
         // Create an instance of the remote object
-        // TODO: Pass the array capacity from the arguments
-        remoteArray = new RemoteStringArray(5);
+        remoteArray = new RemoteStringArray(arrayCapacity);
 
-        // TODO: Take list of strings as argument from CLI to initialize the array
-        String[] initArray = { "a", "b", "c" };
-        for (int i = 0; i < initArray.length; i++) {
-            remoteArray.insertArrayElement(i, initArray[i]);
+        // Initialize the array with the provided strings
+        for (int i = 0; i < initArray.size(); i++) {
+            remoteArray.insertArrayElement(i, initArray.get(i));
         }
 
         // Export the remote object

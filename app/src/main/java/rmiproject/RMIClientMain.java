@@ -22,7 +22,7 @@ public class RMIClientMain {
         Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
 
         // Lookup the remote object from the registry
-        RMIInterface remoteObject = (RMIInterface) registry.lookup(bindName);
+        RemoteStringArray remoteObject = (RemoteStringArray) registry.lookup(bindName);
 
         // Create a Scanner for user input
         Scanner scanner = new Scanner(System.in);
