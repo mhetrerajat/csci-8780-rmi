@@ -7,21 +7,34 @@ import java.rmi.server.UnicastRemoteObject;
 import java.rmi.server.Unreferenced;
 import java.util.logging.Logger;
 
-public class RMIServerMain implements RMIInterface, Unreferenced {
+public class RMIServerMain implements Unreferenced {
 
     private static final Logger logger = Logger.getLogger(RMIServerMain.class.getName());
 
+    private RemoteStringArray remoteArray;
+
     // Export remote objects once during initialization in the constructor, not
     // within methods called multiple times.
-    public RMIServerMain(String bindName) throws RemoteException {
+    public RMIServerMain() throws RemoteException {
         super();
 
         // Get configuration values using ConfigReader
         Integer serverPort = ConfigReader.getServerPort();
         String bindName = ConfigReader.getRemoteObjectBindName();
 
+        // Create an instance of the remote object
+        // TODO: Pass the array capacity from the arguments
+        remoteArray = new RemoteStringArray(5);
+
+        // TODO: Take list of strings as argument from CLI to initialize the array
+        String[] initArray = { "a", "b", "c" };
+        for (int i = 0; i < initArray.length; i++) {
+            remoteArray.insertArrayElement(i, initArray[i]);
+        }
+
         // Export the remote object
-        RMIInterface stub = (RMIInterface) UnicastRemoteObject.exportObject(this, 0);
+        RemoteStringArrayInterface stub = (RemoteStringArrayInterface) UnicastRemoteObject.exportObject(remoteArray,
+                0);
 
         // Get a registry
         Registry registry = LocateRegistry.createRegistry(serverPort);
@@ -33,15 +46,8 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
     }
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            logger.severe("Usage: RMIServerMain <bindName>");
-            System.exit(1);
-        }
-
-        String bindName = args[0];
-
         try {
-            new RMIServerMain(bindName);
+            new RMIServerMain();
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -52,16 +58,11 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
         logger.warning("Server is unreferenced. Shutting down gracefully...");
 
         try {
-            UnicastRemoteObject.unexportObject(this, true);
+            UnicastRemoteObject.unexportObject(remoteArray, true);
             logger.info("Server object unexported.");
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public String sayHello() throws RemoteException {
-        return "Hello !!";
     }
 
 }
