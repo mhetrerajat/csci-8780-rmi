@@ -8,6 +8,13 @@ public interface RemoteStringArrayInterface extends Remote {
     // capacity of the String array.
     public void insertArrayElement(int l, String str) throws RemoteException;
 
+    // Client Specific Methods
     public int getArrayCapacity() throws RemoteException;
+
+    // Print the string associated with the ith element.
+    public void printElement(int i) throws RemoteException;
+
+    // Concatenate Str to the contents of the ith element.
+    public void concatenate(int i, String str) throws RemoteException;
 
 }
