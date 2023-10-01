@@ -12,4 +12,6 @@ public interface RemoteStringArrayInterface extends Remote {
 
     public boolean requestWriteLock(int l, int clientId) throws RemoteException;
 
+    public void releaseLock(int l, int clientId) throws RemoteException;
+
 }

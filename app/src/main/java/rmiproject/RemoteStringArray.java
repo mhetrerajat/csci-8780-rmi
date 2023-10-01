@@ -4,6 +4,8 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.logging.Logger;
 
 public class RemoteStringArray extends UnicastRemoteObject implements RemoteStringArrayInterface {
@@ -51,6 +53,29 @@ public class RemoteStringArray extends UnicastRemoteObject implements RemoteStri
         }
 
         return false;
+    }
+
+    @Override
+    public void releaseLock(int l, int clientId) throws RemoteException {
+        ArrayItem item = array.get(l);
+
+        ReadWriteLock lock = item.getRwLock();
+        Lock readLock = lock.readLock();
+        Lock writeLock = lock.writeLock();
+
+        // release read locks
+        if (item.getReadLockHolderId() == clientId && readLock != null) {
+            readLock.unlock();
+            item.setReadLockHolderId(0);
+        }
+
+        // release write locks
+        if (item.getWriteLockHolderId() == clientId && writeLock != null) {
+            writeLock.unlock();
+            item.setWriteLockHolderId(0);
+        }
+
+        // TODO: Possibly need to update the original array with updated arrayItem
     }
 
 }
