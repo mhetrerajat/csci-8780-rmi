@@ -1,16 +1,21 @@
 package rmiproject;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 import java.io.InputStream;
 
 public class ConfigReader {
     private static Properties properties;
 
     // Properties
-    private static final String SERVER_HOST_KEY = "serverHost";
-    private static final String SERVER_PORT_KEY = "serverPort";
-    private static final String REMOTE_OBJECT_BIND_NAME = "remoteObjectBindName";
+    private static final String SERVER_HOST_KEY = "server.host";
+    private static final String SERVER_PORT_KEY = "server.port";
+    private static final String REMOTE_OBJECT_BIND_NAME_KEY = "remoteObjectBindName";
+    private static final String REMOTE_ARRAY_CAPACITY_KEY = "array.capacity";
+    private static final String REMOTE_ARRAY_INIT_VALUE_KEY = "array.initValue";
 
     static {
         properties = new Properties();
@@ -41,6 +46,16 @@ public class ConfigReader {
         throw new RuntimeException("Property not found for key: " + key);
     }
 
+    private static List<String> getPropertyAsList(String key) {
+        String value = properties.getProperty(key);
+        if (value != null) {
+            return Arrays.stream(value.split(","))
+                    .map(String::trim)
+                    .collect(Collectors.toList());
+        }
+        throw new RuntimeException("Property not found for key: " + key);
+    }
+
     public static String getServerHost() {
         return ConfigReader.getProperty(SERVER_HOST_KEY);
     }
@@ -50,6 +65,14 @@ public class ConfigReader {
     }
 
     public static String getRemoteObjectBindName() {
-        return ConfigReader.getProperty(REMOTE_OBJECT_BIND_NAME);
+        return ConfigReader.getProperty(REMOTE_OBJECT_BIND_NAME_KEY);
+    }
+
+    public static List<String> getRemoteArrayInitValue() {
+        return ConfigReader.getPropertyAsList(REMOTE_ARRAY_INIT_VALUE_KEY);
+    }
+
+    public static Integer getRemoteArrayCapacity() {
+        return ConfigReader.getIntProperty(REMOTE_ARRAY_CAPACITY_KEY);
     }
 }
