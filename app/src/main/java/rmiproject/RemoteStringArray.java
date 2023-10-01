@@ -20,7 +20,7 @@ public interface RemoteStringArray extends Remote {
     public boolean WriteBackElement(String str, int l, int client_id) throws RemoteException;
 
     // custom methods for client
-    public AtomicInteger getClientId();
+    public int getClientId();
 
     public Integer getRemoteArrayCapacity();
 }
