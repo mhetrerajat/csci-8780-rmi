@@ -19,28 +19,4 @@ public class RemoteStringArray extends UnicastRemoteObject implements RemoteStri
         array[l] = str;
     }
 
-    @Override
-    public int getArrayCapacity() throws RemoteException {
-        return array.length;
-    }
-
-    @Override
-    public void printElement(int i) throws RemoteException {
-        if (i >= 0 && i < array.length) {
-            logger.info(String.format("printElement(%d) : %s", i, array[i]));
-        } else {
-            throw new RemoteException("Invalid index");
-        }
-    }
-
-    @Override
-    public void concatenate(int i, String str) throws RemoteException {
-        if (i >= 0 && i < array.length) {
-            array[i] += str;
-            logger.info(String.format("New Concatenated String : %s", array[i]));
-        } else {
-            throw new RemoteException("Invalid index");
-        }
-    }
-
 }
