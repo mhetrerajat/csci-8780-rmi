@@ -80,36 +80,47 @@ public class RMIClientMain {
 
     private static void displayArrayCapacity() {
         // Replace this with the logic to get the array capacity from the server
+        // TODO: Implement getCapacity is function in the RemoteArrayInterface
+        // TODO: Call that function directly
         throw new UnsupportedOperationException("Get_Array_Capacity not implemented");
     }
 
     private static void fetchElementRead() {
         // Replace this with the logic to fetch an element in read-only mode
+        // TODO: Call fetchElementRead function on the server directly
         throw new UnsupportedOperationException("Fetch_Element_Read not implemented");
     }
 
     private static void fetchElementWrite() {
         // Replace this with the logic to fetch an element in read-write mode
+        // TODO: Call fetchElementWrite funtion on the server directly
         throw new UnsupportedOperationException("Fetch_Element_Write not implemented");
     }
 
     private static void printElement() {
         // Replace this with the logic to print an element
+        // TODO: Call fetchElementRead function on the server directly
         throw new UnsupportedOperationException("Print_Element not implemented");
     }
 
     private static void concatenate() {
         // Replace this with the logic to concatenate a string to an element
+        // TODO: Call fetchElementRead function on the server directly to fetch the string
+        // TODO: Modify by concatenating
+        // TODO: Call WriteBackElement function on the server directly
         throw new UnsupportedOperationException("Concatenate not implemented");
     }
 
     private static void writeback() {
         // Replace this with the logic to write back an element to the server
+        // TODO: Ask for the input using CLI
+        // TODO: Call WriteBackElement function on the server directly and send the above string
         throw new UnsupportedOperationException("Writeback not implemented");
     }
 
     private static void releaseLock() {
         // Replace this with the logic to release a lock on an element
+        // TODO: Call the releaseLock method on the server
         throw new UnsupportedOperationException("Release_Lock not implemented");
     }
 

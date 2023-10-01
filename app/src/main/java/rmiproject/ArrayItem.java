@@ -1,16 +1,16 @@
 package rmiproject;
 
-import java.util.HashSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ArrayItem {
     private String value = "";
     private ReadWriteLock rwLock = new ReentrantReadWriteLock();
-    private HashSet<Integer> readers;
-    private Integer writer;
+    private ConcurrentSkipListSet<Integer> readers;
+    private volatile Integer writer;
 
-    public HashSet<Integer> getReaders() {
+    public ConcurrentSkipListSet<Integer> getReaders() {
         return readers;
     }
 
@@ -35,12 +35,12 @@ public class ArrayItem {
 
     public ArrayItem() {
         value = "";
-        readers = new HashSet<>();
+        readers = new ConcurrentSkipListSet<>();
     }
 
     public ArrayItem(String value) {
         value = value;
-        readers = new HashSet<>();
+        readers = new ConcurrentSkipListSet<>();
     }
 
     public String getValue() {
