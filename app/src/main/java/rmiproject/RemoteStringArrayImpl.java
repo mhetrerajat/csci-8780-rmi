@@ -5,6 +5,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -18,6 +20,9 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     private ConcurrentHashMap<Integer, List<Integer>> readers;
     private ConcurrentHashMap<Integer, Integer> writers;
     private ReentrantReadWriteLock[] locks;
+
+    private final Integer LOCK_TIMEOUT = 600;
+    private final TimeUnit LOCK_TIME_UNIT = TimeUnit.SECONDS;
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
         array = new ArrayList<String>(capacity);
@@ -35,8 +40,19 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
 
     @Override
     public boolean requestReadLock(int l, int clientId) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'requestReadLock'");
+        boolean lockAcquired = false;
+        try {
+            // try to acquire lock
+            lockAcquired = locks[l].readLock().tryLock(LOCK_TIMEOUT, LOCK_TIME_UNIT);
+        } catch (InterruptedException e) {
+            logger.severe(String.format("Interrupt Exception"));
+        } finally {
+            if (lockAcquired) {
+                // register client as reader if have the read lock
+                readers.computeIfAbsent(l, key -> new CopyOnWriteArrayList<>()).add(clientId);
+            }
+        }
+        return lockAcquired;
     }
 
     @Override
