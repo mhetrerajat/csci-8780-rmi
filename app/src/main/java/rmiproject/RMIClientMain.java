@@ -4,6 +4,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 public class RMIClientMain {
@@ -24,9 +25,31 @@ public class RMIClientMain {
             // Lookup the remote object from the registry
             RMIInterface remoteObject = (RMIInterface) registry.lookup(bindName);
 
-            // Call remote methods here, passing the message as an argument
-            String response = remoteObject.sayHello();
-            logger.info("Response from server: " + response);
+            // Create a Scanner for user input
+            Scanner scanner = new Scanner(System.in);
+
+            // Interactive CLI loop
+            while (true) {
+                System.out.println("1. Say Hello");
+                System.out.println("2. Exit");
+                System.out.print("Enter your choice: ");
+                int choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        String result = remoteObject.sayHello();
+                        System.out.println("Remote method result: " + result);
+                        break;
+                    case 2:
+                        System.out.println("Exiting...");
+                        scanner.close();
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+            }
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -34,4 +57,5 @@ public class RMIClientMain {
             e.printStackTrace();
         }
     }
+
 }
