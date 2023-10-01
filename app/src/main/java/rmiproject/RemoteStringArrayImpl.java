@@ -124,9 +124,17 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     }
 
     @Override
-    public boolean WriteBackElement(String str, int l, int client_id) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'WriteBackElement'");
+    public boolean WriteBackElement(String str, int l, int clientId) throws RemoteException {
+        ReentrantReadWriteLock lock = locks[l];
+        boolean isClientWriteLock = writers.contains(clientId); 
+
+        // check if client already has the write lock
+        if(lock.isWriteLocked() && isClientWriteLock){
+            // set value in array
+            array.set(l, str);
+            return true;
+        }
+        return false;
     }
 
     @Override
