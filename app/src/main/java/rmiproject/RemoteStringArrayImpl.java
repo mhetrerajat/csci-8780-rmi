@@ -21,6 +21,10 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
         array = new ArrayList<String>(capacity);
+        clientCounter = new AtomicInteger(0);
+        readers = new ConcurrentHashMap<>(capacity);
+        writers = new ConcurrentHashMap<>(capacity);
+        locks = new ReentrantReadWriteLock[capacity];
     }
 
     @Override
