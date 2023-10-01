@@ -57,8 +57,26 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
 
     @Override
     public boolean requestWriteLock(int l, int clientId) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'requestWriteLock'");
+        boolean lockAcquired = false;
+        try {
+            lockAcquired = locks[l].writeLock().tryLock(LOCK_TIMEOUT, LOCK_TIME_UNIT);
+        } catch (InterruptedException e) {
+            logger.severe(String.format("Interrupt Exception"));
+        } finally {
+            if (lockAcquired) {
+                // Check if the write lock is already given to any other client
+                Integer currentWriter = writers.get(l);
+                if (currentWriter != null && !currentWriter.equals(clientId)) {
+                    // Another client already has the write lock
+                    return false;
+                }
+
+                // Update the writers map with the new writer
+                writers.put(l, clientId);
+            }
+        }
+
+        return lockAcquired;
     }
 
     @Override
