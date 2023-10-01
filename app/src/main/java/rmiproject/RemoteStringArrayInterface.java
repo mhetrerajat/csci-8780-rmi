@@ -8,4 +8,6 @@ public interface RemoteStringArrayInterface extends Remote {
     // capacity of the String array.
     public void insertArrayElement(int l, String str) throws RemoteException;
 
+    public boolean requestReadLock(int l, int clientId) throws RemoteException;
+
 }

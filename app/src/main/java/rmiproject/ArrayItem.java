@@ -6,6 +6,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ArrayItem {
     private String value = "";
     private ReadWriteLock rwLock = new ReentrantReadWriteLock();
+    private Integer readLockHolderId = 0;
+    private Integer writeLockHolderId = 0;
+
+    public Integer getReadLockHolderId() {
+        return readLockHolderId;
+    }
+
+    public void setReadLockHolderId(Integer readLockHolderId) {
+        this.readLockHolderId = readLockHolderId;
+    }
+
+    public Integer getWriteLockHolderId() {
+        return writeLockHolderId;
+    }
+
+    public void setWriteLockHolderId(Integer writeLockHolderId) {
+        this.writeLockHolderId = writeLockHolderId;
+    }
 
     public ArrayItem() {
         this.value = "";
