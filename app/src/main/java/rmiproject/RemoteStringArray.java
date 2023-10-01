@@ -2,7 +2,6 @@ package rmiproject;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface RemoteStringArray extends Remote {
     public void insertArrayElement(int l, String str) throws RemoteException;

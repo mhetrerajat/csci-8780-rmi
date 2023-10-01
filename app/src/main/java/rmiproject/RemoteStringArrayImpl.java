@@ -3,9 +3,11 @@ package rmiproject;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -81,8 +83,34 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
 
     @Override
     public void releaseLock(int l, int clientId) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'releaseLock'");
+        ReentrantReadWriteLock lock = locks[l];
+
+        // check if it has the read lock
+        if (lock.getReadLockCount() > 0) {
+            // check if the this clientId has held the lock and if so remove it
+            readers.computeIfPresent(l, (key, clients) -> {
+                boolean isRemoved = clients.removeIf(reader -> reader == clientId);
+                // release the actual read locks
+                if (isRemoved) {
+                    lock.readLock().unlock();
+                }
+                return clients.isEmpty() ? null : clients;
+            });
+        }
+
+        // check if it has the client lock
+        if (lock.isWriteLocked()) {
+            // check if this clientId has held the write lock and if so remove it
+            writers.computeIfPresent(l, (key, writerId) -> {
+                if (writerId == clientId) {
+                    // release the actual write lock
+                    lock.writeLock().unlock();
+                    return null;
+                }
+                return writerId;
+            });
+
+        }
     }
 
     @Override
