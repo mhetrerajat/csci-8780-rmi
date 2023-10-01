@@ -3,11 +3,8 @@ package rmiproject;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -19,7 +16,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
 
     private ArrayList<String> array;
     private AtomicInteger clientCounter;
-    private ConcurrentHashMap<Integer, List<Integer>> readers;
+    private ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> readers;
     private ConcurrentHashMap<Integer, Integer> writers;
     private ReentrantReadWriteLock[] locks;
 
@@ -51,7 +48,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
         } finally {
             if (lockAcquired) {
                 // register client as reader if have the read lock
-                readers.computeIfAbsent(l, key -> new CopyOnWriteArrayList<>()).add(clientId);
+                readers.computeIfAbsent(l, key -> new CopyOnWriteArrayList<>()).addIfAbsent(clientId);
             }
         }
         return lockAcquired;
@@ -126,10 +123,10 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     @Override
     public boolean WriteBackElement(String str, int l, int clientId) throws RemoteException {
         ReentrantReadWriteLock lock = locks[l];
-        boolean isClientWriteLock = writers.contains(clientId); 
+        boolean isClientWriteLock = writers.contains(clientId);
 
         // check if client already has the write lock
-        if(lock.isWriteLocked() && isClientWriteLock){
+        if (lock.isWriteLocked() && isClientWriteLock) {
             // set value in array
             array.set(l, str);
             return true;
