@@ -30,7 +30,14 @@ public class RMIClientMain {
 
         // Interactive CLI loop
         do {
-            System.out.println("1. Say Hello");
+            System.out.println("Choose an option:");
+            System.out.println("1. getArrayCapacity");
+            System.out.println("2. fetchElementRead");
+            System.out.println("3. fetchElementWrite");
+            System.out.println("4. printElement");
+            System.out.println("5. concatenate");
+            System.out.println("6. writeback");
+            System.out.println("7. releaseLock");
             System.out.println("9. Exit");
             System.out.print("Enter your choice: ");
 
@@ -38,8 +45,25 @@ public class RMIClientMain {
 
             switch (choice) {
                 case 1:
-                    String result = remoteObject.sayHello();
-                    System.out.println("Remote method result: " + result);
+                    displayArrayCapacity();
+                    break;
+                case 2:
+                    fetchElementRead();
+                    break;
+                case 3:
+                    fetchElementWrite();
+                    break;
+                case 4:
+                    printElement();
+                    break;
+                case 5:
+                    concatenate();
+                    break;
+                case 6:
+                    writeback();
+                    break;
+                case 7:
+                    releaseLock();
                     break;
                 case 9:
                     System.out.println("Exiting...");
@@ -52,6 +76,41 @@ public class RMIClientMain {
 
         scanner.close();
 
+    }
+
+    private static void displayArrayCapacity() {
+        // Replace this with the logic to get the array capacity from the server
+        throw new UnsupportedOperationException("Get_Array_Capacity not implemented");
+    }
+
+    private static void fetchElementRead() {
+        // Replace this with the logic to fetch an element in read-only mode
+        throw new UnsupportedOperationException("Fetch_Element_Read not implemented");
+    }
+
+    private static void fetchElementWrite() {
+        // Replace this with the logic to fetch an element in read-write mode
+        throw new UnsupportedOperationException("Fetch_Element_Write not implemented");
+    }
+
+    private static void printElement() {
+        // Replace this with the logic to print an element
+        throw new UnsupportedOperationException("Print_Element not implemented");
+    }
+
+    private static void concatenate() {
+        // Replace this with the logic to concatenate a string to an element
+        throw new UnsupportedOperationException("Concatenate not implemented");
+    }
+
+    private static void writeback() {
+        // Replace this with the logic to write back an element to the server
+        throw new UnsupportedOperationException("Writeback not implemented");
+    }
+
+    private static void releaseLock() {
+        // Replace this with the logic to release a lock on an element
+        throw new UnsupportedOperationException("Release_Lock not implemented");
     }
 
 }
