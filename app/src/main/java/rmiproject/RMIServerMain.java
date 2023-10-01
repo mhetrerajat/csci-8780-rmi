@@ -5,13 +5,14 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.server.Unreferenced;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class RMIServerMain implements Unreferenced {
 
     private static final Logger logger = Logger.getLogger(RMIServerMain.class.getName());
 
-    private RemoteStringArray remoteArray;
+    private RemoteStringArrayImpl remoteArray;
 
     // Export remote objects once during initialization in the constructor, not
     // within methods called multiple times.
@@ -21,6 +22,16 @@ public class RMIServerMain implements Unreferenced {
         // Get configuration values using ConfigReader
         Integer serverPort = ConfigReader.getServerPort();
         String bindName = ConfigReader.getRemoteObjectBindName();
+        Integer arrayCapacity = ConfigReader.getRemoteArrayCapacity();
+        List<String> initArray = ConfigReader.getRemoteArrayInitValue();
+
+        // Create an instance of the remote object
+        remoteArray = new RemoteStringArrayImpl(arrayCapacity);
+
+        // Initialize the array with the provided strings
+        for (int i = 0; i < initArray.size(); i++) {
+            remoteArray.insertArrayElement(i, initArray.get(i));
+        }
 
         // Export the remote object
         RemoteStringArray stub = (RemoteStringArray) UnicastRemoteObject.exportObject(remoteArray, 0);

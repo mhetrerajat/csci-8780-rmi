@@ -1,9 +1,18 @@
 package rmiproject;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RemoteStringArrayImpl implements RemoteStringArray{
+public class RemoteStringArrayImpl extends UnicastRemoteObject implements RemoteStringArray{
+
+    private ArrayList<String> array;
+
+    public RemoteStringArrayImpl(int capacity) throws RemoteException {
+        array = new ArrayList<String>(capacity);
+    }
 
     @Override
     public void insertArrayElement(int l, String str) throws RemoteException {
