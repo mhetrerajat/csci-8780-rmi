@@ -114,15 +114,13 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     }
 
     @Override
-    public String fetchElementRead(int l, int client_id) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'fetchElementRead'");
+    public String fetchElementRead(int l, int clientId) throws RemoteException {
+        return requestReadLock(l, clientId) ? array.get(l) : null;
     }
 
     @Override
-    public String fetchElementWrite(int l, int client_id) throws RemoteException {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'fetchElementWrite'");
+    public String fetchElementWrite(int l, int clientId) throws RemoteException {
+        return requestWriteLock(l, clientId) ? array.get(l) : null;
     }
 
     @Override
