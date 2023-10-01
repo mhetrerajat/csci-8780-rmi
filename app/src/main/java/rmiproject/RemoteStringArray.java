@@ -37,4 +37,20 @@ public class RemoteStringArray extends UnicastRemoteObject implements RemoteStri
         return false;
     }
 
+    @Override
+    public boolean requestWriteLock(int l, int clientId) throws RemoteException {
+        ArrayItem item = array.get(l);
+        if (item.getWriteLockHolderId() == clientId || item.getWriteLockHolderId() == 0) {
+            // TODO: Make sure it returns True even if the currently lock is held by same
+            // client id
+            // TODO: Check if multiple clients can have read lock to same item
+            return item.getRwLock().writeLock().tryLock();
+        } else {
+            logger.warning(String.format("Access not granted as read lock for %d th element hold by %d", l,
+                    item.getWriteLockHolderId()));
+        }
+
+        return false;
+    }
+
 }
