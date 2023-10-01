@@ -21,7 +21,7 @@ To run the application, follow these steps in order:
 
 ```bash
 gradle runRMIServer
-gradle runRMIServer
+gradle runRMIClient --console=plain
 ```
 
 ## Environment

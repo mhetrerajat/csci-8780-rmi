@@ -39,6 +39,9 @@ tasks.register('runRMIClient', JavaExec) {
     description = 'Run the RMI Client'
     mainClass = 'rmiproject.RMIClientMain'
     classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    standardOutput = System.out
+    errorOutput = System.err
 }
 
 // task to run the RMI Server
