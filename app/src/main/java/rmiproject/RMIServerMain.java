@@ -16,14 +16,18 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
     public RMIServerMain() throws RemoteException {
         super();
 
+        // Get configuration values using ConfigReader
+        Integer serverPort = ConfigReader.getServerPort();
+        String bindName = ConfigReader.getRemoteObjectBindName();
+
         // Export the remote object
         RMIInterface stub = (RMIInterface) UnicastRemoteObject.exportObject(this, 0);
 
         // Get a registry
-        Registry registry = LocateRegistry.createRegistry(1099);
+        Registry registry = LocateRegistry.createRegistry(serverPort);
 
         // Bind the remote object to the registry
-        registry.rebind("RMIExample", stub);
+        registry.rebind(bindName, stub);
 
         logger.info("Server is ready!");
     }
@@ -53,8 +57,4 @@ public class RMIServerMain implements RMIInterface, Unreferenced {
         return "Hello !!";
     }
 
-    @Override
-    public String sendMessage(String message) throws RemoteException {
-        return "Received message: " + message;
-    }
 }

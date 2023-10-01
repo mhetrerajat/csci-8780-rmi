@@ -9,26 +9,23 @@ public class RMIClientMain {
     private static final Logger logger = Logger.getLogger(RMIClientMain.class.getName());
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            logger.severe("Usage: RMIClientMain <message>");
-            System.exit(1);
-        }
-
-        String message = args[0];
+        
+        // Get configuration values using ConfigReader
+        String serverHost = ConfigReader.getServerHost();
+        Integer serverPort = ConfigReader.getServerPort();
+        String bindName = ConfigReader.getRemoteObjectBindName();
 
         try {
             // Get the registry
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
 
             // Lookup the remote object from the registry
-            RMIInterface remoteObject = (RMIInterface) registry.lookup("RMIExample");
+            RMIInterface remoteObject = (RMIInterface) registry.lookup(bindName);
 
             // Call remote methods here, passing the message as an argument
             String response = remoteObject.sayHello();
             logger.info("Response from server: " + response);
 
-            response = remoteObject.sendMessage(message);
-            logger.info("Server Response: " + response);
         } catch (Exception e) {
             e.printStackTrace();
         }
