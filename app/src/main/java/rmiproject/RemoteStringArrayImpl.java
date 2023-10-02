@@ -1,5 +1,6 @@
 package rmiproject;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 
 public class RemoteStringArrayImpl extends UnicastRemoteObject implements RemoteStringArray {
 
@@ -28,7 +30,9 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
         clientCounter = new AtomicInteger(0);
         readers = new ConcurrentHashMap<>(capacity);
         writers = new ConcurrentHashMap<>(capacity);
-        locks = new ReentrantReadWriteLock[capacity];
+        locks = IntStream.range(0, capacity)
+                .mapToObj(i -> new ReentrantReadWriteLock())
+                .toArray(ReentrantReadWriteLock[]::new);
     }
 
     @Override
@@ -45,6 +49,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
             lockAcquired = locks[l].readLock().tryLock(LOCK_TIMEOUT, LOCK_TIME_UNIT);
         } catch (InterruptedException e) {
             logger.severe(String.format("Interrupt Exception"));
+            e.printStackTrace();
         } finally {
             if (lockAcquired) {
                 // register client as reader if have the read lock
@@ -135,12 +140,12 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     }
 
     @Override
-    public int getClientId() {
+    public int getClientId() throws RemoteException {
         return clientCounter.incrementAndGet();
     }
 
     @Override
-    public Integer getRemoteArrayCapacity() {
+    public Integer getRemoteArrayCapacity() throws RemoteException {
         return array.size();
     }
 
