@@ -4,18 +4,23 @@
 package rmiproject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.rmi.RemoteException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-class RequestReadLockTest {
+class ReadLockTest {
 
     private RemoteStringArrayImpl remoteArray;
 
@@ -41,13 +46,22 @@ class RequestReadLockTest {
     }
 
     @Test
-    public void testMultipleClientsReadingSameLock() throws RemoteException {
+    public void testMultipleClientsReadingSameLock() throws RemoteException, InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newFixedThreadPool(2); // Two threads for two clients
 
-        boolean result1 = remoteArray.requestReadLock(4, 111);
-        boolean result2 = remoteArray.requestReadLock(4, 222);
+        // give read lock first
+        Future<Boolean> readLockResultClientOne = executorService.submit(() -> remoteArray.requestReadLock(4, 111));
+        // try to get same lock for different client
+        Future<Boolean> readLockResultClientTwo = executorService.submit(() -> remoteArray.requestReadLock(4, 222));
 
-        assertTrue(result1);
-        assertTrue(result2);
+        // Get the results from the threads
+        boolean readLockAcquiredClientOne = readLockResultClientOne.get();
+        boolean readLockAcquiredClientTwo = readLockResultClientTwo.get();
+
+        assertTrue(readLockAcquiredClientOne);
+        assertTrue(readLockAcquiredClientTwo);
+
+        executorService.shutdown();
     }
 
     @Test
