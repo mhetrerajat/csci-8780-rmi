@@ -22,9 +22,6 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     private ConcurrentHashMap<Integer, Integer> writers;
     private ReentrantReadWriteLock[] locks;
 
-    private final Integer LOCK_TIMEOUT = ConfigReader.getLockTimeout();
-    private final TimeUnit LOCK_TIME_UNIT = TimeUnit.SECONDS;
-
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
         array = new ArrayList<String>(capacity);
         clientCounter = new AtomicInteger(0);
@@ -46,10 +43,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
         boolean lockAcquired = false;
         try {
             // try to acquire lock
-            lockAcquired = locks[l].readLock().tryLock(LOCK_TIMEOUT, LOCK_TIME_UNIT);
-        } catch (InterruptedException e) {
-            logger.severe(String.format("Interrupt Exception"));
-            e.printStackTrace();
+            lockAcquired = locks[l].readLock().tryLock();
         } finally {
             if (lockAcquired) {
                 // register client as reader if have the read lock
@@ -63,9 +57,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     public boolean requestWriteLock(int l, int clientId) throws RemoteException {
         boolean lockAcquired = false;
         try {
-            lockAcquired = locks[l].writeLock().tryLock(LOCK_TIMEOUT, LOCK_TIME_UNIT);
-        } catch (InterruptedException e) {
-            logger.severe(String.format("Interrupt Exception"));
+            lockAcquired = locks[l].writeLock().tryLock();
         } finally {
             if (lockAcquired) {
                 // Check if the write lock is already given to any other client

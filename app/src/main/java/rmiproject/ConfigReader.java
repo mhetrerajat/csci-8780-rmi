@@ -16,7 +16,6 @@ public class ConfigReader {
     private static final String REMOTE_OBJECT_BIND_NAME_KEY = "remoteObjectBindName";
     private static final String REMOTE_ARRAY_CAPACITY_KEY = "array.capacity";
     private static final String REMOTE_ARRAY_INIT_VALUE_KEY = "array.initValue";
-    private static final String LOCK_TIMEOUT_KEY = "lock.timeout";
 
     static {
         properties = new Properties();
@@ -75,9 +74,5 @@ public class ConfigReader {
 
     public static Integer getRemoteArrayCapacity() {
         return ConfigReader.getIntProperty(REMOTE_ARRAY_CAPACITY_KEY);
-    }
-
-    public static Integer getLockTimeout() {
-        return ConfigReader.getIntProperty(LOCK_TIMEOUT_KEY);
     }
 }
