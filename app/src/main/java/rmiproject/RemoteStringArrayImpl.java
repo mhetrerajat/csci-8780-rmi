@@ -20,7 +20,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
     private ConcurrentHashMap<Integer, Integer> writers;
     private ReentrantReadWriteLock[] locks;
 
-    private final Integer LOCK_TIMEOUT = 600;
+    private final Integer LOCK_TIMEOUT = ConfigReader.getLockTimeout();
     private final TimeUnit LOCK_TIME_UNIT = TimeUnit.SECONDS;
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
