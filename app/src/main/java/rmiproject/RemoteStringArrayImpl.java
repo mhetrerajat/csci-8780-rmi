@@ -31,7 +31,7 @@ public class RemoteStringArrayImpl extends UnicastRemoteObject implements Remote
         readers = new ConcurrentHashMap<>(capacity);
         writers = new ConcurrentHashMap<>(capacity);
         locks = IntStream.range(0, capacity)
-                .mapToObj(i -> new ReentrantReadWriteLock())
+                .mapToObj(i -> new ReentrantReadWriteLock(true))
                 .toArray(ReentrantReadWriteLock[]::new);
     }
 
