@@ -3,13 +3,21 @@
  */
 package rmiproject;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 class RequestReadLockTest {
 
@@ -44,6 +52,25 @@ class RequestReadLockTest {
 
         assertTrue(result1);
         assertTrue(result2);
+    }
+
+    @Test
+    public void testFetchElementReadSuccess() throws RemoteException {
+        String result = remoteArray.fetchElementRead(1, 123);
+        assertEquals("b", result);
+    }
+
+    @Test
+    public void testFetchElementReadLockFailure() throws RemoteException {
+        // Scenario: fetch without read permission
+
+        // Mock read request lock to return False
+        RemoteStringArrayImpl remoteArraySpy = Mockito.spy(remoteArray);
+        when(remoteArraySpy.requestReadLock(2, 456)).thenReturn(false);
+
+        // test
+        String result = remoteArraySpy.fetchElementRead(2, 456);
+        assertNull(result);
     }
 
 }
