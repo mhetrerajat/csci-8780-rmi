@@ -163,14 +163,22 @@ public class RMIClientMain {
                 clientId, index, newString));
     }
 
-    private static void writeback() {
-        // Replace this with the logic to write back an element to the server
+    private static void writeback() throws RemoteException {
 
-        // TODO: Call writeback method from the server and try to copy the value from
-        // current local copy of the array back to the server
-        // Only print "success" or "failure" based on the status of the operation
-
-        throw new UnsupportedOperationException("Writeback not implemented");
+        // TODO: Modify the CLI to ask for the index from the user
+        Integer index = 0;
+        
+        String localValue = localArray.get(index);
+        boolean isSuccessful = stub.WriteBackElement(localValue, index, clientId);
+        if (isSuccessful) {
+            logger.info(String.format("[Success]: Client[%d] write back localArray[%d] value %s to server.", clientId,
+                    index,
+                    localValue));
+        } else {
+            logger.warning(String.format(
+                    "[Failure]: Client[%d] does not have the permission to write %d(st/rd/th) element to remote array",
+                    clientId, index));
+        }
     }
 
     private static void releaseLock() {
