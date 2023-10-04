@@ -167,7 +167,7 @@ public class RMIClientMain {
 
         // TODO: Modify the CLI to ask for the index from the user
         Integer index = 0;
-        
+
         String localValue = localArray.get(index);
         boolean isSuccessful = stub.WriteBackElement(localValue, index, clientId);
         if (isSuccessful) {
@@ -181,12 +181,13 @@ public class RMIClientMain {
         }
     }
 
-    private static void releaseLock() {
-        // Replace this with the logic to release a lock on an element
+    private static void releaseLock() throws RemoteException {
+        // TODO: Modify the CLI to ask for the index from the user
+        Integer index = 0;
 
-        // TODO: call the releaseLock method on the server with element id
-
-        throw new UnsupportedOperationException("Release_Lock not implemented");
+        stub.releaseLock(index, clientId);
+        logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) releases all locks",
+                clientId, index));
     }
 
 }
