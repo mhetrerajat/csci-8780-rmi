@@ -114,12 +114,13 @@ public class RMIClientMain {
         arrElement.ifPresentOrElse(
                 element -> {
                     localArray.add(index, element);
-                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", index, element));
+                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
+                            element));
                 },
                 () -> {
                     logger.warning(String.format(
                             "[Failure]: Client[%d] does not have the permission to fetch %d(st/rd/th) element from remote array",
-                            index));
+                            clientId, index));
                 });
 
     }
