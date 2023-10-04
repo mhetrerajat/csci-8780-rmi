@@ -149,7 +149,7 @@ public class RMIClientMain {
 
         Integer index = 0;
         logger.info(String.format("[Success]: Client[%d] printed local copy of %d(st/rd/th) element - %s",
-                localArray.get(index)));
+                clientId, index, localArray.get(index)));
     }
 
     private static void concatenate() {
