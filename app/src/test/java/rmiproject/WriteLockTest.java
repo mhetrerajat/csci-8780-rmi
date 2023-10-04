@@ -33,6 +33,7 @@ public class WriteLockTest {
 
     @Test
     public void testWriteLockAcquisitionSuccess() throws RemoteException {
+        // Scenario: Try to get write lock when it is not being acquired anyone
         boolean result = remoteArray.requestWriteLock(1, 123);
         // Verify that the method returns true when the lock is acquired successfully
         assertTrue(result);
@@ -40,6 +41,8 @@ public class WriteLockTest {
 
     @Test
     public void testWriteLockAlreadyTakenBySameClient() throws RemoteException {
+        // Scenario: Try to get write lock when it is already acquired by same client
+
         remoteArray.requestWriteLock(2, 789); // get the write lock
         boolean result = remoteArray.requestWriteLock(2, 789); // retry to get the same
         assertTrue(result);
@@ -48,6 +51,9 @@ public class WriteLockTest {
     @Test
     public void testWriteLockAlreadyTakenByDifferentClient()
             throws RemoteException, InterruptedException, ExecutionException {
+
+        // Scenario: When two clients try to acquire same lock simultaneously.
+
         ExecutorService executorService = Executors.newFixedThreadPool(2); // Two threads for two clients
 
         // give write lock first
@@ -67,6 +73,10 @@ public class WriteLockTest {
 
     @Test
     public void testReadWriteLockConflictSameClient() throws RemoteException {
+
+        // Scenario: When same client tries to get the write lock after getting read
+        // lock for same element
+
         // First client acquires a read lock
         boolean readLockAcquired = remoteArray.requestReadLock(1, 123);
         // Verify that the first client acquired the read lock
@@ -81,6 +91,9 @@ public class WriteLockTest {
     @Test
     public void testReadWriteLockConflictDifferentClient()
             throws RemoteException, ExecutionException, InterruptedException {
+
+        // Scenario: When second client tries to acquire write lock where read lock is already given to another client
+
         ExecutorService executorService = Executors.newFixedThreadPool(2); // Two threads for two clients
 
         // First client acquires a read lock
