@@ -85,7 +85,8 @@ public class RMIClientMain {
                     break;
                 case 5:
                     index = getIndexViaCLI(scanner);
-                    concatenate(index);
+                    String concatStr = getStringToConcatenateViaCLI(scanner);
+                    concatenate(index, concatStr);
                     break;
                 case 6:
                     index = getIndexViaCLI(scanner);
@@ -136,6 +137,28 @@ public class RMIClientMain {
         return index;
     }
 
+    public static String getStringToConcatenateViaCLI(Scanner scanner) {
+        String input = "";
+        boolean validInput = false;
+
+        while (!validInput) {
+            System.out.print("Enter a string to concatenate (or type 'exit' to quit): ");
+            input = scanner.nextLine().trim(); // Trim leading and trailing whitespace
+
+            if ("exit".equalsIgnoreCase(input)) {
+                System.exit(0); // Exit the program
+            }
+
+            if (!input.isEmpty()) {
+                validInput = true; // Valid input, exit the loop
+            } else {
+                System.out.println("Invalid input. Please enter a non-empty string.");
+            }
+        }
+
+        return input;
+    }
+
     private static void getArrayCapacity() throws RemoteException {
         logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
     }
@@ -178,10 +201,7 @@ public class RMIClientMain {
                 clientId, index, localArray.get(index)));
     }
 
-    private static void concatenate(Integer index) {
-        // TODO: Modify the CLI to ask for the index and string to concat from the user
-        String stringToConcat = "abc";
-
+    private static void concatenate(Integer index, String stringToConcat) {
         String newString = localArray.get(index).concat(stringToConcat);
         localArray.add(index, newString);
         logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) string after concatenation operation: %s",
