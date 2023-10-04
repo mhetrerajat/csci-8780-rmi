@@ -153,14 +153,14 @@ public class RMIClientMain {
     }
 
     private static void concatenate() {
-        // Replace this with the logic to concatenate a string to an element
+        // TODO: Modify the CLI to ask for the index and string to concat from the user
+        Integer index = 0;
+        String stringToConcat = "abc";
 
-        // TODO: Modify the current value of the element in the local copy of the array
-        // by concating the string
-        // Assume that element already being fetched from the server
-        // do not write back to remote array
-
-        throw new UnsupportedOperationException("Concatenate not implemented");
+        String newString = localArray.get(index).concat(stringToConcat);
+        localArray.add(index, newString);
+        logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) string after concatenation operation: %s",
+                clientId, index, newString));
     }
 
     private static void writeback() {
