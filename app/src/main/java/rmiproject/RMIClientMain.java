@@ -4,6 +4,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -11,14 +13,13 @@ public class RMIClientMain {
 
     private static final Logger logger = Logger.getLogger(RMIClientMain.class.getName());
 
-    public static void main(String[] args) throws RemoteException, NotBoundException {
+    // client id assigned by the server
+    private Integer clientId;
 
-        // TODO: Keep a local copy of the remote array string
-        // TODO: Preferably as a hashmap because we don't know the capacity at the init
-        // time
+    // Local copy of the remote array
+    private ArrayList<String> localArray;
 
-        // TODO: Automatically release the locks if the client gets killed / crashed
-
+    public RMIClientMain() throws RemoteException, NotBoundException {
         // Get configuration values using ConfigReader
         String serverHost = ConfigReader.getServerHost();
         Integer serverPort = ConfigReader.getServerPort();
@@ -29,6 +30,17 @@ public class RMIClientMain {
 
         // Lookup the remote object from the registry
         RemoteStringArray remoteObject = (RemoteStringArray) registry.lookup(bindName);
+
+        // init local copy of the array same size as of remote array
+        localArray = new ArrayList<>(remoteObject.getRemoteArrayCapacity());
+        // get the client id from the server
+        clientId = remoteObject.getClientId();
+
+    }
+
+    public static void main(String[] args) {
+
+        // TODO: Automatically release the locks if the client gets killed / crashed
 
         // Create a Scanner for user input
         Scanner scanner = new Scanner(System.in);
