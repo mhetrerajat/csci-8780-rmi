@@ -13,6 +13,12 @@ public class RMIClientMain {
 
     public static void main(String[] args) throws RemoteException, NotBoundException {
 
+        // TODO: Keep a local copy of the remote array string
+        // TODO: Preferably as a hashmap because we don't know the capacity at the init
+        // time
+
+        // TODO: Automatically release the locks if the client gets killed / crashed
+
         // Get configuration values using ConfigReader
         String serverHost = ConfigReader.getServerHost();
         Integer serverPort = ConfigReader.getServerPort();
@@ -80,36 +86,70 @@ public class RMIClientMain {
 
     private static void displayArrayCapacity() {
         // Replace this with the logic to get the array capacity from the server
+
+        // TODO: Fetch the maximum array capacity from the server.
+        // Should return the max possible capacity not the current length of the array
+
         throw new UnsupportedOperationException("Get_Array_Capacity not implemented");
     }
 
     private static void fetchElementRead() {
         // Replace this with the logic to fetch an element in read-only mode
+
+        // TODO: Call the fetchElementRead from the server
+        // Copy the fetched value into the local copy of the array specific to this
+        // client
+        // Only print "success" or "failure" based on the status of the operation
+
         throw new UnsupportedOperationException("Fetch_Element_Read not implemented");
     }
 
     private static void fetchElementWrite() {
         // Replace this with the logic to fetch an element in read-write mode
+
+        // TODO: Call the fetchElementWrite from the server
+        // Copy the fetched value into the local copy of the array specific to this
+        // client
+        // Only print "success" or "failure" based on the status of the operation
         throw new UnsupportedOperationException("Fetch_Element_Write not implemented");
     }
 
     private static void printElement() {
         // Replace this with the logic to print an element
+
+        // TODO: Print the current value of the element in the local copy of the array
+        // No need to fetch it from the server, assume that element already being
+        // fetched from the server
+
         throw new UnsupportedOperationException("Print_Element not implemented");
     }
 
     private static void concatenate() {
         // Replace this with the logic to concatenate a string to an element
+
+        // TODO: Modify the current value of the element in the local copy of the array
+        // by concating the string
+        // Assume that element already being fetched from the server
+        // do not write back to remote array
+
         throw new UnsupportedOperationException("Concatenate not implemented");
     }
 
     private static void writeback() {
         // Replace this with the logic to write back an element to the server
+
+        // TODO: Call writeback method from the server and try to copy the value from
+        // current local copy of the array back to the server
+        // Only print "success" or "failure" based on the status of the operation
+
         throw new UnsupportedOperationException("Writeback not implemented");
     }
 
     private static void releaseLock() {
         // Replace this with the logic to release a lock on an element
+
+        // TODO: call the releaseLock method on the server with element id
+
         throw new UnsupportedOperationException("Release_Lock not implemented");
     }
 
