@@ -65,28 +65,35 @@ public class RMIClientMain {
             System.out.print("Enter your choice: ");
 
             choice = scanner.nextInt();
+            Integer index;
 
             switch (choice) {
                 case 1:
                     getArrayCapacity();
                     break;
                 case 2:
-                    fetchElementRead();
+                    index = getIndexViaCLI(scanner);
+                    fetchElementRead(index);
                     break;
                 case 3:
-                    fetchElementWrite();
+                    index = getIndexViaCLI(scanner);
+                    fetchElementWrite(index);
                     break;
                 case 4:
-                    printElement();
+                    index = getIndexViaCLI(scanner);
+                    printElement(index);
                     break;
                 case 5:
-                    concatenate();
+                    index = getIndexViaCLI(scanner);
+                    concatenate(index);
                     break;
                 case 6:
-                    writeback();
+                    index = getIndexViaCLI(scanner);
+                    writeback(index);
                     break;
                 case 7:
-                    releaseLock();
+                    index = getIndexViaCLI(scanner);
+                    releaseLock(index);
                     break;
                 case 9:
                     System.out.println("Exiting...");
@@ -101,14 +108,39 @@ public class RMIClientMain {
 
     }
 
+    public static int getIndexViaCLI(Scanner scanner) {
+        int index = 0;
+        boolean validInput = false;
+        Integer maxArrSize = localArray.size();
+
+        while (!validInput) {
+            System.out.print("Enter an index (or type 'exit' to quit): ");
+            String userInput = scanner.nextLine();
+
+            if ("exit".equalsIgnoreCase(userInput)) {
+                System.exit(0); // Exit the program
+            }
+
+            try {
+                index = Integer.parseInt(userInput);
+                if (index >= 0 && index < maxArrSize) {
+                    validInput = true;
+                } else {
+                    System.out.println("Invalid index. Please enter an index between 0 and " + (maxArrSize - 1));
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer or 'exit' to quit.");
+            }
+        }
+
+        return index;
+    }
+
     private static void getArrayCapacity() throws RemoteException {
         logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
     }
 
-    private static void fetchElementRead() throws RemoteException {
-        // TODO: Modify the CLI to ask for the index from the user
-
-        Integer index = 0;
+    private static void fetchElementRead(Integer index) throws RemoteException {
         Optional<String> arrElement = Optional.ofNullable(stub.fetchElementRead(index, clientId));
 
         arrElement.ifPresentOrElse(
@@ -125,10 +157,7 @@ public class RMIClientMain {
 
     }
 
-    private static void fetchElementWrite() throws RemoteException {
-        // TODO: Modify the CLI to ask for the index from the user
-
-        Integer index = 0;
+    private static void fetchElementWrite(Integer index) throws RemoteException {
         Optional<String> arrElement = Optional.ofNullable(stub.fetchElementWrite(index, clientId));
 
         arrElement.ifPresentOrElse(
@@ -144,17 +173,13 @@ public class RMIClientMain {
                 });
     }
 
-    private static void printElement() {
-        // TODO: Modify the CLI to ask for the index from the user
-
-        Integer index = 0;
+    private static void printElement(Integer index) {
         logger.info(String.format("[Success]: Client[%d] printed local copy of %d(st/rd/th) element - %s",
                 clientId, index, localArray.get(index)));
     }
 
-    private static void concatenate() {
+    private static void concatenate(Integer index) {
         // TODO: Modify the CLI to ask for the index and string to concat from the user
-        Integer index = 0;
         String stringToConcat = "abc";
 
         String newString = localArray.get(index).concat(stringToConcat);
@@ -163,11 +188,7 @@ public class RMIClientMain {
                 clientId, index, newString));
     }
 
-    private static void writeback() throws RemoteException {
-
-        // TODO: Modify the CLI to ask for the index from the user
-        Integer index = 0;
-
+    private static void writeback(Integer index) throws RemoteException {
         String localValue = localArray.get(index);
         boolean isSuccessful = stub.WriteBackElement(localValue, index, clientId);
         if (isSuccessful) {
@@ -181,10 +202,7 @@ public class RMIClientMain {
         }
     }
 
-    private static void releaseLock() throws RemoteException {
-        // TODO: Modify the CLI to ask for the index from the user
-        Integer index = 0;
-
+    private static void releaseLock(Integer index) throws RemoteException {
         stub.releaseLock(index, clientId);
         logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) releases all locks",
                 clientId, index));
