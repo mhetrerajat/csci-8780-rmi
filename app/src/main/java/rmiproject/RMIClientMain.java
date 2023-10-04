@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
@@ -14,10 +14,10 @@ public class RMIClientMain {
     private static final Logger logger = Logger.getLogger(RMIClientMain.class.getName());
 
     // client id assigned by the server
-    private Integer clientId;
+    private static Integer clientId;
 
     // Local copy of the remote array
-    private ArrayList<String> localArray;
+    private static ArrayList<String> localArray;
 
     // RemoteStringArray
     static RemoteStringArray stub;
@@ -44,6 +44,8 @@ public class RMIClientMain {
     public static void main(String[] args) throws RemoteException {
 
         // TODO: Automatically release the locks if the client gets killed / crashed
+        // TODO: Remove the throws statement and add try-catch block to print that
+        // server has crashed message
 
         // Create a Scanner for user input
         Scanner scanner = new Scanner(System.in);
@@ -103,15 +105,23 @@ public class RMIClientMain {
         logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
     }
 
-    private static void fetchElementRead() {
-        // Replace this with the logic to fetch an element in read-only mode
+    private static void fetchElementRead() throws RemoteException {
+        // TODO: Modify the CLI to ask for the index from the user
 
-        // TODO: Call the fetchElementRead from the server
-        // Copy the fetched value into the local copy of the array specific to this
-        // client
-        // Only print "success" or "failure" based on the status of the operation
+        Integer index = 0;
+        Optional<String> arrElement = Optional.ofNullable(stub.fetchElementRead(index, clientId));
 
-        throw new UnsupportedOperationException("Fetch_Element_Read not implemented");
+        arrElement.ifPresentOrElse(
+                element -> {
+                    localArray.add(index, element);
+                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", index, element));
+                },
+                () -> {
+                    logger.warning(String.format(
+                            "[Failure]: Client[%d] does not have the permission to fetch %d(st/rd/th) element from remote array",
+                            index));
+                });
+
     }
 
     private static void fetchElementWrite() {
