@@ -19,6 +19,9 @@ public class RMIClientMain {
     // Local copy of the remote array
     private ArrayList<String> localArray;
 
+    // RemoteStringArray
+    static RemoteStringArray stub;
+
     public RMIClientMain() throws RemoteException, NotBoundException {
         // Get configuration values using ConfigReader
         String serverHost = ConfigReader.getServerHost();
@@ -29,16 +32,16 @@ public class RMIClientMain {
         Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
 
         // Lookup the remote object from the registry
-        RemoteStringArray remoteObject = (RemoteStringArray) registry.lookup(bindName);
+        stub = (RemoteStringArray) registry.lookup(bindName);
 
         // init local copy of the array same size as of remote array
-        localArray = new ArrayList<>(remoteObject.getRemoteArrayCapacity());
+        localArray = new ArrayList<>(stub.getRemoteArrayCapacity());
         // get the client id from the server
-        clientId = remoteObject.getClientId();
+        clientId = stub.getClientId();
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException {
 
         // TODO: Automatically release the locks if the client gets killed / crashed
 
@@ -63,7 +66,7 @@ public class RMIClientMain {
 
             switch (choice) {
                 case 1:
-                    displayArrayCapacity();
+                    getArrayCapacity();
                     break;
                 case 2:
                     fetchElementRead();
@@ -96,13 +99,8 @@ public class RMIClientMain {
 
     }
 
-    private static void displayArrayCapacity() {
-        // Replace this with the logic to get the array capacity from the server
-
-        // TODO: Fetch the maximum array capacity from the server.
-        // Should return the max possible capacity not the current length of the array
-
-        throw new UnsupportedOperationException("Get_Array_Capacity not implemented");
+    private static void getArrayCapacity() throws RemoteException {
+        logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
     }
 
     private static void fetchElementRead() {
