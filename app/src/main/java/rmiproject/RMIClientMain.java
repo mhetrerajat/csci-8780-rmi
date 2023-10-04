@@ -145,13 +145,11 @@ public class RMIClientMain {
     }
 
     private static void printElement() {
-        // Replace this with the logic to print an element
+        // TODO: Modify the CLI to ask for the index from the user
 
-        // TODO: Print the current value of the element in the local copy of the array
-        // No need to fetch it from the server, assume that element already being
-        // fetched from the server
-
-        throw new UnsupportedOperationException("Print_Element not implemented");
+        Integer index = 0;
+        logger.info(String.format("[Success]: Client[%d] printed local copy of %d(st/rd/th) element - %s",
+                localArray.get(index)));
     }
 
     private static void concatenate() {
