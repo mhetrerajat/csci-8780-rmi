@@ -125,14 +125,23 @@ public class RMIClientMain {
 
     }
 
-    private static void fetchElementWrite() {
-        // Replace this with the logic to fetch an element in read-write mode
+    private static void fetchElementWrite() throws RemoteException {
+        // TODO: Modify the CLI to ask for the index from the user
 
-        // TODO: Call the fetchElementWrite from the server
-        // Copy the fetched value into the local copy of the array specific to this
-        // client
-        // Only print "success" or "failure" based on the status of the operation
-        throw new UnsupportedOperationException("Fetch_Element_Write not implemented");
+        Integer index = 0;
+        Optional<String> arrElement = Optional.ofNullable(stub.fetchElementWrite(index, clientId));
+
+        arrElement.ifPresentOrElse(
+                element -> {
+                    localArray.add(index, element);
+                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
+                            element));
+                },
+                () -> {
+                    logger.warning(String.format(
+                            "[Failure]: Client[%d] does not have the permission to fetch %d(st/rd/th) element with write permission from remote array",
+                            clientId, index));
+                });
     }
 
     private static void printElement() {
