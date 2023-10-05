@@ -35,77 +35,88 @@ public class RMIClientMain {
         stub = (RemoteStringArray) registry.lookup(bindName);
 
         // init local copy of the array same size as of remote array
-        localArray = new ArrayList<>(stub.getRemoteArrayCapacity());
+        Integer remoteArrCapacity = stub.getRemoteArrayCapacity();
+        localArray = new ArrayList<>(remoteArrCapacity);
         // get the client id from the server
         clientId = stub.getClientId();
 
+        logger.info(String.format("Initiated Client[%d] with local array capacity %d", clientId, remoteArrCapacity));
+
     }
 
-    public static void main(String[] args) throws RemoteException {
+    public static void main(String[] args) {
 
         // TODO: Automatically release the locks if the client gets killed / crashed
-        // TODO: Remove the throws statement and add try-catch block to print that
-        // server has crashed message
 
         // Create a Scanner for user input
         Scanner scanner = new Scanner(System.in);
         int choice;
 
-        // Interactive CLI loop
-        do {
-            System.out.println("Choose an option:");
-            System.out.println("1. getArrayCapacity");
-            System.out.println("2. fetchElementRead");
-            System.out.println("3. fetchElementWrite");
-            System.out.println("4. printElement");
-            System.out.println("5. concatenate");
-            System.out.println("6. writeback");
-            System.out.println("7. releaseLock");
-            System.out.println("9. Exit");
-            System.out.print("Enter your choice: ");
+        try {
 
-            choice = scanner.nextInt();
-            Integer index;
+            // Init Client
+            RMIClientMain rmiClient = new RMIClientMain();
 
-            switch (choice) {
-                case 1:
-                    getArrayCapacity();
-                    break;
-                case 2:
-                    index = getIndexViaCLI(scanner);
-                    fetchElementRead(index);
-                    break;
-                case 3:
-                    index = getIndexViaCLI(scanner);
-                    fetchElementWrite(index);
-                    break;
-                case 4:
-                    index = getIndexViaCLI(scanner);
-                    printElement(index);
-                    break;
-                case 5:
-                    index = getIndexViaCLI(scanner);
-                    String concatStr = getStringToConcatenateViaCLI(scanner);
-                    concatenate(index, concatStr);
-                    break;
-                case 6:
-                    index = getIndexViaCLI(scanner);
-                    writeback(index);
-                    break;
-                case 7:
-                    index = getIndexViaCLI(scanner);
-                    releaseLock(index);
-                    break;
-                case 9:
-                    System.out.println("Exiting...");
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-                    break;
-            }
-        } while (choice != 9);
+            // Interactive CLI loop
+            do {
+                System.out.println("Choose an option:");
+                System.out.println("1. getArrayCapacity");
+                System.out.println("2. fetchElementRead");
+                System.out.println("3. fetchElementWrite");
+                System.out.println("4. printElement");
+                System.out.println("5. concatenate");
+                System.out.println("6. writeback");
+                System.out.println("7. releaseLock");
+                System.out.println("9. Exit");
+                System.out.print("Enter your choice: ");
 
-        scanner.close();
+                choice = scanner.nextInt();
+                Integer index;
+
+                switch (choice) {
+                    case 1:
+                        getArrayCapacity();
+                        break;
+                    case 2:
+                        index = getIndexViaCLI(scanner);
+                        fetchElementRead(index);
+                        break;
+                    case 3:
+                        index = getIndexViaCLI(scanner);
+                        fetchElementWrite(index);
+                        break;
+                    case 4:
+                        index = getIndexViaCLI(scanner);
+                        printElement(index);
+                        break;
+                    case 5:
+                        index = getIndexViaCLI(scanner);
+                        String concatStr = getStringToConcatenateViaCLI(scanner);
+                        concatenate(index, concatStr);
+                        break;
+                    case 6:
+                        index = getIndexViaCLI(scanner);
+                        writeback(index);
+                        break;
+                    case 7:
+                        index = getIndexViaCLI(scanner);
+                        releaseLock(index);
+                        break;
+                    case 9:
+                        System.out.println("Exiting...");
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                        break;
+                }
+
+            } while (choice != 9);
+
+        } catch (RemoteException | NotBoundException e) {
+            logger.severe("Server crashed...");
+        } finally {
+            scanner.close();
+        }
 
     }
 
