@@ -1,16 +1,15 @@
 package rmiproject;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class RemoteStringArrayImpl implements RemoteStringArray {
 
@@ -23,7 +22,8 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
     private ReentrantReadWriteLock[] locks;
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
-        array = new ArrayList<String>(capacity);
+        array = Stream.generate(() -> "").limit(capacity)
+                .collect(Collectors.toCollection(ArrayList::new));
         clientCounter = new AtomicInteger(0);
         readers = new ConcurrentHashMap<>(capacity);
         writers = new ConcurrentHashMap<>(capacity);

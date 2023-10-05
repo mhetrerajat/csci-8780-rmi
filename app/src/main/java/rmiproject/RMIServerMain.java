@@ -26,8 +26,8 @@ public class RMIServerMain implements Unreferenced {
         List<String> initArray = ConfigReader.getRemoteArrayInitValue();
 
         // Create an instance of the remote object
-        remoteArray = new RemoteStringArrayImpl(arrayCapacity);
-
+        remoteArray = new RemoteStringArrayImpl(arrayCapacity); 
+        
         // Initialize the array with the provided strings
         for (int i = 0; i < initArray.size(); i++) {
             remoteArray.insertArrayElement(i, initArray.get(i));
