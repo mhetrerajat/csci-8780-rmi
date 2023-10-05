@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
-public class RemoteStringArrayImpl extends UnicastRemoteObject implements RemoteStringArray {
+public class RemoteStringArrayImpl implements RemoteStringArray {
 
     private static final Logger logger = Logger.getLogger(RemoteStringArrayImpl.class.getName());
 
