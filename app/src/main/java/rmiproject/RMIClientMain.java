@@ -7,7 +7,10 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Vector;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RMIClientMain {
 
@@ -34,11 +37,13 @@ public class RMIClientMain {
         // Lookup the remote object from the registry
         stub = (RemoteStringArray) registry.lookup(bindName);
 
-        // init local copy of the array same size as of remote array
-        Integer remoteArrCapacity = stub.getRemoteArrayCapacity();
-        localArray = new ArrayList<>(remoteArrCapacity);
         // get the client id from the server
         clientId = stub.getClientId();
+
+        // init local copy of the array same size as of remote array
+        Integer remoteArrCapacity = stub.getRemoteArrayCapacity();
+        localArray = Stream.generate(() -> "").limit(remoteArrCapacity)
+                .collect(Collectors.toCollection(ArrayList::new));
 
         logger.info(String.format("Initiated Client[%d] with local array capacity %d", clientId, remoteArrCapacity));
 
@@ -127,10 +132,12 @@ public class RMIClientMain {
 
         while (!validInput) {
             System.out.print("Enter an index (or type 'exit' to quit): ");
-            String userInput = scanner.nextLine();
+            String userInput = scanner.nextLine().trim();
 
             if ("exit".equalsIgnoreCase(userInput)) {
                 System.exit(0); // Exit the program
+            } else if (userInput.isEmpty()) {
+                continue;
             }
 
             try {
@@ -158,6 +165,8 @@ public class RMIClientMain {
 
             if ("exit".equalsIgnoreCase(input)) {
                 System.exit(0); // Exit the program
+            } else if (input.isEmpty()) {
+                continue;
             }
 
             if (!input.isEmpty()) {
