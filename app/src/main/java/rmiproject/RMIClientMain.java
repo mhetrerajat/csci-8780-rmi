@@ -14,13 +14,13 @@ public class RMIClientMain {
     private static final Logger logger = Logger.getLogger(RMIClientMain.class.getName());
 
     // client id assigned by the server
-    private static Integer clientId;
+    private Integer clientId;
 
     // Local copy of the remote array
-    private static ArrayList<String> localArray;
+    private ArrayList<String> localArray;
 
     // RemoteStringArray
-    static RemoteStringArray stub;
+    private RemoteStringArray stub;
 
     public RMIClientMain() throws RemoteException, NotBoundException {
         // Get configuration values using ConfigReader
@@ -75,32 +75,32 @@ public class RMIClientMain {
 
                 switch (choice) {
                     case 1:
-                        getArrayCapacity();
+                        rmiClient.getArrayCapacity();
                         break;
                     case 2:
-                        index = getIndexViaCLI(scanner);
-                        fetchElementRead(index);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        rmiClient.fetchElementRead(index);
                         break;
                     case 3:
-                        index = getIndexViaCLI(scanner);
-                        fetchElementWrite(index);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        rmiClient.fetchElementWrite(index);
                         break;
                     case 4:
-                        index = getIndexViaCLI(scanner);
-                        printElement(index);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        rmiClient.printElement(index);
                         break;
                     case 5:
-                        index = getIndexViaCLI(scanner);
-                        String concatStr = getStringToConcatenateViaCLI(scanner);
-                        concatenate(index, concatStr);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        String concatStr = rmiClient.getStringToConcatenateViaCLI(scanner);
+                        rmiClient.concatenate(index, concatStr);
                         break;
                     case 6:
-                        index = getIndexViaCLI(scanner);
-                        writeback(index);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        rmiClient.writeback(index);
                         break;
                     case 7:
-                        index = getIndexViaCLI(scanner);
-                        releaseLock(index);
+                        index = rmiClient.getIndexViaCLI(scanner);
+                        rmiClient.releaseLock(index);
                         break;
                     case 9:
                         System.out.println("Exiting...");
@@ -120,7 +120,7 @@ public class RMIClientMain {
 
     }
 
-    public static int getIndexViaCLI(Scanner scanner) {
+    public int getIndexViaCLI(Scanner scanner) {
         int index = 0;
         boolean validInput = false;
         Integer maxArrSize = localArray.size();
@@ -148,7 +148,7 @@ public class RMIClientMain {
         return index;
     }
 
-    public static String getStringToConcatenateViaCLI(Scanner scanner) {
+    public String getStringToConcatenateViaCLI(Scanner scanner) {
         String input = "";
         boolean validInput = false;
 
@@ -170,11 +170,11 @@ public class RMIClientMain {
         return input;
     }
 
-    private static void getArrayCapacity() throws RemoteException {
+    private void getArrayCapacity() throws RemoteException {
         logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
     }
 
-    private static void fetchElementRead(Integer index) throws RemoteException {
+    private void fetchElementRead(Integer index) throws RemoteException {
         Optional<String> arrElement = Optional.ofNullable(stub.fetchElementRead(index, clientId));
 
         arrElement.ifPresentOrElse(
@@ -191,7 +191,7 @@ public class RMIClientMain {
 
     }
 
-    private static void fetchElementWrite(Integer index) throws RemoteException {
+    private void fetchElementWrite(Integer index) throws RemoteException {
         Optional<String> arrElement = Optional.ofNullable(stub.fetchElementWrite(index, clientId));
 
         arrElement.ifPresentOrElse(
@@ -207,19 +207,19 @@ public class RMIClientMain {
                 });
     }
 
-    private static void printElement(Integer index) {
+    private void printElement(Integer index) {
         logger.info(String.format("[Success]: Client[%d] printed local copy of %d(st/rd/th) element - %s",
                 clientId, index, localArray.get(index)));
     }
 
-    private static void concatenate(Integer index, String stringToConcat) {
+    private void concatenate(Integer index, String stringToConcat) {
         String newString = localArray.get(index).concat(stringToConcat);
         localArray.add(index, newString);
         logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) string after concatenation operation: %s",
                 clientId, index, newString));
     }
 
-    private static void writeback(Integer index) throws RemoteException {
+    private void writeback(Integer index) throws RemoteException {
         String localValue = localArray.get(index);
         boolean isSuccessful = stub.WriteBackElement(localValue, index, clientId);
         if (isSuccessful) {
@@ -233,7 +233,7 @@ public class RMIClientMain {
         }
     }
 
-    private static void releaseLock(Integer index) throws RemoteException {
+    private void releaseLock(Integer index) throws RemoteException {
         stub.releaseLock(index, clientId);
         logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) releases all locks",
                 clientId, index));
