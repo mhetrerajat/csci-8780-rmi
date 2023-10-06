@@ -22,4 +22,6 @@ public interface RemoteStringArray extends Remote {
     public int getClientId() throws RemoteException;
 
     public Integer getRemoteArrayCapacity() throws RemoteException;
+
+    public String getCurrentLocksHoldByClient(Integer clientId) throws RemoteException;
 }

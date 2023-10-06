@@ -87,7 +87,7 @@ public class ArrayItem {
     }
 
     public boolean doesClientHaveWriteLock(int clientId) {
-        return writer == clientId;
+        return writer != null && writer == clientId;
     }
 
     public void writeUnlock() {

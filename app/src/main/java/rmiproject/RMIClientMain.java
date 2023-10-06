@@ -75,6 +75,7 @@ public class RMIClientMain {
                 System.out.println("6. writeback");
                 System.out.println("7. releaseLock");
                 System.out.println("9. Exit");
+                System.out.println("11. [DEBUG] Check my locks");
                 System.out.println("-----------------------------------");
                 System.out.print("Enter your choice: ");
 
@@ -113,6 +114,9 @@ public class RMIClientMain {
                     case 9:
                         System.out.println("Exiting...");
                         break;
+                    case 11:
+                        rmiClient.getCurrentLocksHoldByClient();
+                        break;
                     default:
                         System.out.println("Invalid choice. Please try again.");
                         break;
@@ -126,6 +130,10 @@ public class RMIClientMain {
             scanner.close();
         }
 
+    }
+
+    private void getCurrentLocksHoldByClient() throws RemoteException {
+        logger.info(String.format("[DEBUG]: %s", stub.getCurrentLocksHoldByClient(clientId)));
     }
 
     private int getIndexViaCLI(Scanner scanner) {
