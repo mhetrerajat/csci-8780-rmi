@@ -7,7 +7,6 @@ import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,6 +14,12 @@ import java.util.stream.Stream;
 public class RMIClientMain {
 
     private static final Logger logger = Logger.getLogger(RMIClientMain.class.getName());
+
+    private static final String DEFAULT_CLIENT_CONFIG_PATH = "/client-config.properties";
+
+    private static String configPath;
+
+    private ConfigReader configReader;
 
     // client id assigned by the server
     private Integer clientId;
@@ -25,11 +30,18 @@ public class RMIClientMain {
     // RemoteStringArray
     private RemoteStringArray stub;
 
-    private RMIClientMain() throws RemoteException, NotBoundException {
+    private RMIClientMain() {
+        super();
+    }
+
+    private void init(String configPath) throws RemoteException, NotBoundException {
+
+        configReader = new ConfigReader(configPath);
+
         // Get configuration values using ConfigReader
-        String serverHost = ConfigReader.getServerHost();
-        Integer serverPort = ConfigReader.getServerPort();
-        String bindName = ConfigReader.getRemoteObjectBindName();
+        String serverHost = configReader.getServerHost();
+        Integer serverPort = configReader.getServerPort();
+        String bindName = configReader.getRemoteObjectBindName();
 
         // Get the registry
         Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
@@ -46,7 +58,6 @@ public class RMIClientMain {
                 .collect(Collectors.toCollection(ArrayList::new));
 
         logger.info(String.format("Initiated Client[%d] with local array capacity %d", clientId, remoteArrCapacity));
-
     }
 
     public static void main(String[] args) {
@@ -61,6 +72,8 @@ public class RMIClientMain {
 
             // Init Client
             RMIClientMain rmiClient = new RMIClientMain();
+            configPath = ConfigReader.parseConfigPathFromCLI(args, DEFAULT_CLIENT_CONFIG_PATH);
+            rmiClient.init(configPath);
 
             // Interactive CLI loop
             do {
