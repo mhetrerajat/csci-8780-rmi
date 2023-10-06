@@ -71,4 +71,7 @@ tasks.register('runRMIServer', JavaExec) {
     description = 'Run the RMI Server'
     mainClass = 'rmiproject.RMIServerMain'
     classpath = sourceSets.main.runtimeClasspath
+
+    // Delete reference to exported remote object after all client dies
+    systemProperty 'java.rmi.dgc.leaseValue', '30000'
 }
