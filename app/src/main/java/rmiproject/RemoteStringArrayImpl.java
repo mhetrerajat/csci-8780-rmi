@@ -35,7 +35,7 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
     @Override
     public void insertArrayElement(int l, String str) throws RemoteException {
         // NOTE: Assumption; This method is only used by server
-        array.add(l, str);
+        array.set(l, str);
     }
 
     @Override
