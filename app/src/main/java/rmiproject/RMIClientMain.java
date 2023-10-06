@@ -64,7 +64,9 @@ public class RMIClientMain {
 
             // Interactive CLI loop
             do {
-                System.out.println("Choose an option:");
+                System.out.println("===================================");
+                System.out.println("        Choose an option:");
+                System.out.println("-----------------------------------");
                 System.out.println("1. getArrayCapacity");
                 System.out.println("2. fetchElementRead");
                 System.out.println("3. fetchElementWrite");
@@ -73,6 +75,7 @@ public class RMIClientMain {
                 System.out.println("6. writeback");
                 System.out.println("7. releaseLock");
                 System.out.println("9. Exit");
+                System.out.println("-----------------------------------");
                 System.out.print("Enter your choice: ");
 
                 choice = scanner.nextInt();
