@@ -1,12 +1,8 @@
 package rmiproject;
 
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -24,47 +20,6 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         array = Stream.generate(() -> new ArrayItem()).limit(capacity)
                 .collect(Collectors.toCollection(ArrayList::new));
         clientCounter = new AtomicInteger(0);
-
-        // Start a separate thread to periodically check and release locks
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::checkAndReleaseLocks, 0, 5,
-                TimeUnit.SECONDS);
-
-        // Register a shutdown hook to perform cleanup when the server exits
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            // Perform cleanup tasks here
-            System.out.println("RMI server is shutting down. Performing cleanup...");
-            // Close resources, release locks, etc.
-            if (!executorService.isShutdown() && !executorService.isTerminated()) {
-                System.out.println("Shutting down periodic stale lock checker...");
-                executorService.shutdown();
-            }
-
-        }));
-    }
-
-    private void checkAndReleaseLocks() {
-        long currentTime = System.currentTimeMillis();
-
-        System.out.println("Trying to release stale locks...");
-
-        // Release locks for the reader
-        IntStream.range(0, array.size())
-                .forEach(index -> {
-                    ArrayItem item = array.get(index);
-                    List<Integer> staleReaders = item.getStaleReaders(currentTime);
-                    staleReaders.forEach(reader -> {
-                        releaseReadLock(index, reader); // release locks
-                        item.removeReader(reader); // remove as reader
-                    });
-
-                    // writers
-                    Boolean isStaleWriter = item.isStaleWriter(currentTime);
-                    if (isStaleWriter) {
-                        releaseWriteLock(index, item.getWriterId()); // release locks
-                        item.removeWriter(); // remove as writer
-                    }
-                });
 
     }
 
