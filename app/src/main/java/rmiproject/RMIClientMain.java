@@ -188,7 +188,7 @@ public class RMIClientMain {
 
         arrElement.ifPresentOrElse(
                 element -> {
-                    localArray.add(index, element);
+                    localArray.set(index, element);
                     logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
                             element));
                 },
@@ -205,7 +205,7 @@ public class RMIClientMain {
 
         arrElement.ifPresentOrElse(
                 element -> {
-                    localArray.add(index, element);
+                    localArray.set(index, element);
                     logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
                             element));
                 },
@@ -223,7 +223,7 @@ public class RMIClientMain {
 
     private void concatenate(Integer index, String stringToConcat) {
         String newString = localArray.get(index).concat(stringToConcat);
-        localArray.add(index, newString);
+        localArray.set(index, newString);
         logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) string after concatenation operation: %s",
                 clientId, index, newString));
     }
