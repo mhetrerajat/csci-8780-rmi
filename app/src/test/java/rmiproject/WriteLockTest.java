@@ -1,5 +1,6 @@
 package rmiproject;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,7 +93,8 @@ public class WriteLockTest {
     public void testReadWriteLockConflictDifferentClient()
             throws RemoteException, ExecutionException, InterruptedException {
 
-        // Scenario: When second client tries to acquire write lock where read lock is already given to another client
+        // Scenario: When second client tries to acquire write lock where read lock is
+        // already given to another client
 
         ExecutorService executorService = Executors.newFixedThreadPool(2); // Two threads for two clients
 
@@ -136,5 +138,31 @@ public class WriteLockTest {
         assertFalse(readLockAcquired);
 
         executorService.shutdown();
+    }
+
+    @Test
+    public void testWriteBackElementMultiClient() throws InterruptedException, ExecutionException {
+        // run only one thread at a time
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+        // write value at particular index
+        Future<String> writeResult = executorService.submit(() -> {
+            String currentVal = remoteArray.fetchElementWrite(4, 456);
+            String newVal = currentVal.concat("_test");
+            remoteArray.WriteBackElement(newVal, 4, 456);
+            // release the locks
+            remoteArray.releaseLock(4, 456);
+            return newVal;
+        });
+
+        // read value with another client
+        Future<String> readResult = executorService.submit(() -> remoteArray.fetchElementRead(4, 123));
+
+        // Get the results from the threads
+        String newWrittenVal = writeResult.get();
+        String readVal = readResult.get();
+
+        assertEquals(newWrittenVal, readVal);
+
     }
 }
