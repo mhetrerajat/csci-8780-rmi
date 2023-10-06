@@ -100,7 +100,7 @@ public class ArrayItem {
     }
 
     public boolean isStaleWriter(long currentTime) {
-        return (currentTime - writeLockTimestamp) > lockTimeout;
+        return writeLockTimestamp != null && (currentTime - writeLockTimestamp) > lockTimeout;
     }
 
     public boolean tryWriteLock() {
