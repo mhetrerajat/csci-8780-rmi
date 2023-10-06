@@ -25,7 +25,7 @@ public class RMIClientMain {
     // RemoteStringArray
     private RemoteStringArray stub;
 
-    public RMIClientMain() throws RemoteException, NotBoundException {
+    private RMIClientMain() throws RemoteException, NotBoundException {
         // Get configuration values using ConfigReader
         String serverHost = ConfigReader.getServerHost();
         Integer serverPort = ConfigReader.getServerPort();
@@ -125,7 +125,7 @@ public class RMIClientMain {
 
     }
 
-    public int getIndexViaCLI(Scanner scanner) {
+    private int getIndexViaCLI(Scanner scanner) {
         int index = 0;
         boolean validInput = false;
         Integer maxArrSize = localArray.size();
@@ -155,7 +155,7 @@ public class RMIClientMain {
         return index;
     }
 
-    public String getStringToConcatenateViaCLI(Scanner scanner) {
+    private String getStringToConcatenateViaCLI(Scanner scanner) {
         String input = "";
         boolean validInput = false;
 
@@ -179,8 +179,12 @@ public class RMIClientMain {
         return input;
     }
 
+    private String getSuffix(int number) {
+        return (number >= 11 && number <= 13) ? "th" : (number % 10 == 1) ? "st" : (number % 10 == 2) ? "nd" : (number % 10 == 3) ? "rd" : "th";
+    }
+
     private void getArrayCapacity() throws RemoteException {
-        logger.info(String.format("Server Response - Array Capacity : %d", stub.getRemoteArrayCapacity()));
+        logger.info(String.format("[Success]: Client[%d] says Array Capacity : %d", clientId, stub.getRemoteArrayCapacity()));
     }
 
     private void fetchElementRead(Integer index) throws RemoteException {
@@ -189,13 +193,13 @@ public class RMIClientMain {
         arrElement.ifPresentOrElse(
                 element -> {
                     localArray.set(index, element);
-                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
-                            element));
+                    logger.info(String.format("[Success]: Client[%d] fetched %s to localArray[%d] with read permission", clientId,
+                            element, index));
                 },
                 () -> {
                     logger.warning(String.format(
-                            "[Failure]: Client[%d] does not have the permission to fetch %d(st/rd/th) element from remote array",
-                            clientId, index));
+                            "[Failure]: Client[%d] does not have the permission to fetch %d%s element from remote array",
+                            clientId, index, getSuffix(index)));
                 });
 
     }
@@ -206,26 +210,26 @@ public class RMIClientMain {
         arrElement.ifPresentOrElse(
                 element -> {
                     localArray.set(index, element);
-                    logger.info(String.format("[Success]: Client[%d] updated localArray[%d] = %s", clientId, index,
-                            element));
+                    logger.info(String.format("[Success]: Client[%d] fetched %s to localArray[%d] with read/write permission", clientId,
+                            element, index));
                 },
                 () -> {
                     logger.warning(String.format(
-                            "[Failure]: Client[%d] does not have the permission to fetch %d(st/rd/th) element with write permission from remote array",
-                            clientId, index));
+                            "[Failure]: Client[%d] does not have the permission to fetch %d%s element with write permission from remote array",
+                            clientId, index, getSuffix(index)));
                 });
     }
 
     private void printElement(Integer index) {
-        logger.info(String.format("[Success]: Client[%d] printed local copy of %d(st/rd/th) element - %s",
-                clientId, index, localArray.get(index)));
+        logger.info(String.format("[Success]: Client[%d] printed local copy of %d%s element - %s",
+                clientId, index, getSuffix(index),localArray.get(index)));
     }
 
     private void concatenate(Integer index, String stringToConcat) {
         String newString = localArray.get(index).concat(stringToConcat);
         localArray.set(index, newString);
-        logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) string after concatenation operation: %s",
-                clientId, index, newString));
+        logger.info(String.format("[Success]: Client[%d] %d%s string after concatenation operation: %s",
+                clientId, index, getSuffix(index),newString));
     }
 
     private void writeback(Integer index) throws RemoteException {
@@ -237,15 +241,15 @@ public class RMIClientMain {
                     localValue));
         } else {
             logger.warning(String.format(
-                    "[Failure]: Client[%d] does not have the permission to write %d(st/rd/th) element to remote array",
-                    clientId, index));
+                    "[Failure]: Client[%d] does not have the permission to write back %d%s element to remote array",
+                    clientId, index, getSuffix(index)));
         }
     }
 
     private void releaseLock(Integer index) throws RemoteException {
         stub.releaseLock(index, clientId);
-        logger.info(String.format("[Success]: Client[%d] %d(st/rd/th) releases all locks",
-                clientId, index));
+        logger.info(String.format("[Success]: Client[%d] releases all locks for %d%s element",
+                clientId, index, getSuffix(index)));
     }
 
 }
