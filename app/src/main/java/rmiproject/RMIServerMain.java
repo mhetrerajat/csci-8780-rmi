@@ -12,22 +12,32 @@ public class RMIServerMain implements Unreferenced {
 
     private static final Logger logger = Logger.getLogger(RMIServerMain.class.getName());
 
+    private static final String DEFAULT_SERVER_CONFIG_PATH = "/server-config.properties";
+
+    private static String configPath;
+
+    private ConfigReader configReader;
+
     private RemoteStringArrayImpl remoteArray;
 
     // Export remote objects once during initialization in the constructor, not
     // within methods called multiple times.
-    public RMIServerMain() throws RemoteException {
+    public RMIServerMain() {
         super();
+    }
+
+    private void init(String configPath) throws RemoteException {
+        configReader = new ConfigReader(configPath);
 
         // Get configuration values using ConfigReader
-        Integer serverPort = ConfigReader.getServerPort();
-        String bindName = ConfigReader.getRemoteObjectBindName();
-        Integer arrayCapacity = ConfigReader.getRemoteArrayCapacity();
-        List<String> initArray = ConfigReader.getRemoteArrayInitValue();
+        Integer serverPort = configReader.getServerPort();
+        String bindName = configReader.getRemoteObjectBindName();
+        Integer arrayCapacity = configReader.getRemoteArrayCapacity();
+        List<String> initArray = configReader.getRemoteArrayInitValue();
 
         // Create an instance of the remote object
-        remoteArray = new RemoteStringArrayImpl(arrayCapacity); 
-        
+        remoteArray = new RemoteStringArrayImpl(arrayCapacity);
+
         // Initialize the array with the provided strings
         for (int i = 0; i < initArray.size(); i++) {
             remoteArray.insertArrayElement(i, initArray.get(i));
@@ -45,9 +55,13 @@ public class RMIServerMain implements Unreferenced {
         logger.info("Server is ready!");
     }
 
+
     public static void main(String[] args) {
         try {
-            new RMIServerMain();
+            // init
+            RMIServerMain rmiServer = new RMIServerMain();
+            configPath = ConfigReader.parseConfigPathFromCLI(args, DEFAULT_SERVER_CONFIG_PATH);
+            rmiServer.init(configPath);
         } catch (RemoteException e) {
             e.printStackTrace();
         }

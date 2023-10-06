@@ -3,38 +3,63 @@ package rmiproject;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.io.InputStream;
 
 public class ConfigReader {
-    private static Properties properties;
+
+    private static final Logger logger = Logger.getLogger(ConfigReader.class.getName());
+
+    private Properties properties;
 
     // Properties
-    private static final String SERVER_HOST_KEY = "server.host";
-    private static final String SERVER_PORT_KEY = "server.port";
-    private static final String REMOTE_OBJECT_BIND_NAME_KEY = "remoteObjectBindName";
-    private static final String REMOTE_ARRAY_CAPACITY_KEY = "array.capacity";
-    private static final String REMOTE_ARRAY_INIT_VALUE_KEY = "array.initValue";
+    private final String SERVER_HOST_KEY = "server.host";
+    private final String SERVER_PORT_KEY = "server.port";
+    private final String REMOTE_OBJECT_BIND_NAME_KEY = "remoteObjectBindName";
+    private final String REMOTE_ARRAY_CAPACITY_KEY = "array.capacity";
+    private final String REMOTE_ARRAY_INIT_VALUE_KEY = "array.initValue";
 
-    static {
+    public ConfigReader(String configPath){
+        // Parse properties
         properties = new Properties();
-        try (InputStream configFile = ConfigReader.class.getResourceAsStream("/config.properties")) {
+        try (InputStream configFile = ConfigReader.class.getResourceAsStream(configPath)) {
             if (configFile != null) {
                 properties.load(configFile);
             } else {
-                throw new RuntimeException("config.properties not found in resources directory");
+                throw new RuntimeException(String.format("%s not found in resources directory", configPath));
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error loading configuration from config.properties", e);
+            throw new RuntimeException(String.format("Error loading configuration from %s", configPath), e);
         }
     }
 
-    private static String getProperty(String key) {
+
+    public static String parseConfigPathFromCLI(String[] args, String defaultConfigFile) {
+        Optional<String> configFileOption = Arrays.stream(args)
+                .filter(arg -> arg.equals("--config"))
+                .findFirst();
+
+        if (configFileOption.isPresent()) {
+            int index = Arrays.asList(args).indexOf("--config");
+            if (index < args.length - 1) {
+                return args[index + 1]; // Use the provided configuration file
+            } else {
+                logger.severe("Error: Missing configuration file after --config option.");
+                System.exit(1);
+            }
+        }
+
+        return defaultConfigFile;
+    }
+
+    private String getProperty(String key) {
         return properties.getProperty(key);
     }
 
-    private static int getIntProperty(String key) {
+    private int getIntProperty(String key) {
         String value = properties.getProperty(key);
         if (value != null) {
             try {
@@ -46,7 +71,7 @@ public class ConfigReader {
         throw new RuntimeException("Property not found for key: " + key);
     }
 
-    private static List<String> getPropertyAsList(String key) {
+    private List<String> getPropertyAsList(String key) {
         String value = properties.getProperty(key);
         if (value != null) {
             return Arrays.stream(value.split(","))
@@ -56,23 +81,23 @@ public class ConfigReader {
         throw new RuntimeException("Property not found for key: " + key);
     }
 
-    public static String getServerHost() {
-        return ConfigReader.getProperty(SERVER_HOST_KEY);
+    public String getServerHost() {
+        return getProperty(SERVER_HOST_KEY);
     }
 
-    public static Integer getServerPort() {
-        return ConfigReader.getIntProperty(SERVER_PORT_KEY);
+    public Integer getServerPort() {
+        return getIntProperty(SERVER_PORT_KEY);
     }
 
-    public static String getRemoteObjectBindName() {
-        return ConfigReader.getProperty(REMOTE_OBJECT_BIND_NAME_KEY);
+    public String getRemoteObjectBindName() {
+        return getProperty(REMOTE_OBJECT_BIND_NAME_KEY);
     }
 
-    public static List<String> getRemoteArrayInitValue() {
-        return ConfigReader.getPropertyAsList(REMOTE_ARRAY_INIT_VALUE_KEY);
+    public List<String> getRemoteArrayInitValue() {
+        return getPropertyAsList(REMOTE_ARRAY_INIT_VALUE_KEY);
     }
 
-    public static Integer getRemoteArrayCapacity() {
-        return ConfigReader.getIntProperty(REMOTE_ARRAY_CAPACITY_KEY);
+    public Integer getRemoteArrayCapacity() {
+        return getIntProperty(REMOTE_ARRAY_CAPACITY_KEY);
     }
 }
