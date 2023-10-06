@@ -2,6 +2,8 @@ package rmiproject;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
+import java.util.Map;
 
 public interface RemoteStringArray extends Remote {
     public void insertArrayElement(int l, String str) throws RemoteException;
@@ -23,5 +25,5 @@ public interface RemoteStringArray extends Remote {
 
     public Integer getRemoteArrayCapacity() throws RemoteException;
 
-    public String getCurrentLocksHoldByClient(Integer clientId) throws RemoteException;
+    public Map<String, List<Integer>> getCurrentLocksHoldByClient(Integer clientId) throws RemoteException;
 }

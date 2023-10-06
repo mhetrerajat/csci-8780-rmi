@@ -2,7 +2,9 @@ package rmiproject;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -131,7 +133,7 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
     }
 
     @Override
-    public String getCurrentLocksHoldByClient(Integer clientId) throws RemoteException {
+    public Map<String, List<Integer>> getCurrentLocksHoldByClient(Integer clientId) throws RemoteException {
         List<Integer> reads = IntStream.range(0, array.size())
                 .filter(i -> array.get(i).doesClientHasReadLock(clientId))
                 .boxed()
@@ -142,7 +144,11 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
                 .boxed()
                 .toList();
 
-        return String.format("Read Locks: %s | Write Locks: %s", reads.toString(), writes.toString());
+        Map<String, List<Integer>> lockInfo = new HashMap<>();
+        lockInfo.put("read", reads);
+        lockInfo.put("write", writes);
+
+        return lockInfo;
     }
 
 }
