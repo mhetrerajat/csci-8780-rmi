@@ -4,9 +4,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,8 +59,6 @@ public class RMIClientMain {
     }
 
     public static void main(String[] args) {
-
-        // TODO: Automatically release the locks if the client gets killed / crashed
 
         // Create a Scanner for user input
         Scanner scanner = new Scanner(System.in);
@@ -146,7 +142,9 @@ public class RMIClientMain {
     }
 
     private void getCurrentLocksHoldByClient() throws RemoteException {
-        logger.info(String.format("[DEBUG]: %s", stub.getCurrentLocksHoldByClient(clientId)));
+        Map<String, List<Integer>> lockInfo = stub.getCurrentLocksHoldByClient(clientId);
+        String lockInfoStr = String.format("Read Locks: %s | Write Locks: %s", lockInfo.get("read").toString(), lockInfo.get("write").toString());
+        logger.info(String.format("[DEBUG]: %s", lockInfoStr));
     }
 
     private int getIndexViaCLI(Scanner scanner) {
