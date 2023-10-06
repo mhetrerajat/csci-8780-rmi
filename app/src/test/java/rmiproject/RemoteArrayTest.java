@@ -2,12 +2,12 @@ package rmiproject;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +38,13 @@ public class RemoteArrayTest {
 
         Field remoteStrArrField = RemoteStringArrayImpl.class.getDeclaredField("array");
         remoteStrArrField.setAccessible(true);
-        ArrayList<String> actualArr = (ArrayList<String>) remoteStrArrField.get(remoteArray);
+        ArrayList<ArrayItem> actualArr = (ArrayList<ArrayItem>) remoteStrArrField.get(remoteArray);
 
-        assertArrayEquals(expectedArr.toArray(), actualArr.toArray());
-        assertEquals(5, actualArr.size());
+        ArrayList<String> valuesList = (ArrayList<String>) actualArr.stream()
+                .map(ArrayItem::getValue)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        assertArrayEquals(expectedArr.toArray(), valuesList.toArray());
+        assertEquals(5, valuesList.size());
     }
 }

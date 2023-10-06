@@ -46,7 +46,7 @@ public class EndToEndTest {
                 .submit(() -> remoteArray.fetchElementWrite(index, 222));
 
         assertEquals("b", readVal); // should fetch index element
-        assertNull(writeOpVal.get()); // should get the value
+        assertNull(writeOpVal.get()); // should not get the value
 
         // Client 1 release locks
         remoteArray.releaseLock(index, 111);
@@ -56,5 +56,7 @@ public class EndToEndTest {
                 .submit(() -> remoteArray.fetchElementWrite(index, 222));
 
         assertEquals("b", writeOpAttemptTwoVal.get()); // should get the value now
+
+        executorService.shutdown();
     }
 }

@@ -2,10 +2,11 @@ package rmiproject;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -15,39 +16,61 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
 
     private static final Logger logger = Logger.getLogger(RemoteStringArrayImpl.class.getName());
 
-    private ArrayList<String> array;
+    private ArrayList<ArrayItem> array;
     private AtomicInteger clientCounter;
-    private ConcurrentHashMap<Integer, CopyOnWriteArrayList<Integer>> readers;
-    private ConcurrentHashMap<Integer, Integer> writers;
-    private ReentrantReadWriteLock[] locks;
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
-        array = Stream.generate(() -> "").limit(capacity)
+        array = Stream.generate(() -> new ArrayItem()).limit(capacity)
                 .collect(Collectors.toCollection(ArrayList::new));
         clientCounter = new AtomicInteger(0);
-        readers = new ConcurrentHashMap<>(capacity);
-        writers = new ConcurrentHashMap<>(capacity);
-        locks = IntStream.range(0, capacity)
-                .mapToObj(i -> new ReentrantReadWriteLock(true))
-                .toArray(ReentrantReadWriteLock[]::new);
+
+        // Start a separate thread to periodically check and release locks
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::checkAndReleaseLocks, 0, 5000,
+                TimeUnit.MILLISECONDS);
+    }
+
+    private void checkAndReleaseLocks() {
+        long currentTime = System.currentTimeMillis();
+
+        // Release locks for the reader
+        IntStream.range(0, array.size())
+                .forEach(index -> {
+                    ArrayItem item = array.get(index);
+                    List<Integer> staleReaders = item.getStaleReaders(currentTime);
+                    staleReaders.forEach(reader -> {
+                        releaseReadLock(index, reader); // release locks
+                        item.removeReader(reader); // remove as reader
+                    });
+
+                    // writers
+                    Boolean isStaleWriter = item.isStaleWriter(currentTime);
+                    if (isStaleWriter) {
+                        releaseWriteLock(index, item.getWriterId()); // release locks
+                        item.removeWriter(); // remove as writer
+                    }
+                });
+
     }
 
     @Override
     public void insertArrayElement(int l, String str) throws RemoteException {
         // NOTE: Assumption; This method is only used by server
-        array.set(l, str);
+        ArrayItem newItem = new ArrayItem(str);
+        array.set(l, newItem);
     }
 
     @Override
     public boolean requestReadLock(int l, int clientId) throws RemoteException {
+        ArrayItem item = array.get(l);
         boolean lockAcquired = false;
         try {
             // try to acquire lock
-            lockAcquired = locks[l].readLock().tryLock();
+            lockAcquired = item.tryReadLock();
         } finally {
             if (lockAcquired) {
-                // register client as reader if have the read lock
-                readers.computeIfAbsent(l, key -> new CopyOnWriteArrayList<>()).addIfAbsent(clientId);
+                // register client as reader if have the read lock and mark timestamp
+                item.markAsReader(clientId, System.currentTimeMillis());
             }
         }
         return lockAcquired;
@@ -55,77 +78,73 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
 
     @Override
     public boolean requestWriteLock(int l, int clientId) throws RemoteException {
+        ArrayItem item = array.get(l);
         boolean lockAcquired = false;
         try {
-            lockAcquired = locks[l].writeLock().tryLock();
+            lockAcquired = item.tryWriteLock();
         } finally {
             if (lockAcquired) {
                 // Check if the write lock is already given to any other client
-                Integer currentWriter = writers.get(l);
+                Integer currentWriter = item.getWriterId();
                 if (currentWriter != null && !currentWriter.equals(clientId)) {
                     // Another client already has the write lock
                     return false;
                 }
 
-                // Update the writers map with the new writer
-                writers.put(l, clientId);
+                // mark as write with timestamp
+                item.markAsWriter(clientId, System.currentTimeMillis());
             }
         }
 
         return lockAcquired;
     }
 
+    private void releaseReadLock(int l, int clientId) {
+        ArrayItem item = array.get(l);
+        if (item.hasReadLocks()) {
+            // Check if the client has held the lock and if so remove it
+            if (item.doesClientHasReadLock(clientId)) {
+                item.readUnlock();
+                item.removeReader(clientId); // remove the client as reader
+            }
+        }
+    }
+
+    private void releaseWriteLock(int l, int clientId) {
+        ArrayItem item = array.get(l);
+        if (item.hasWriteLock()) {
+            // check if this clientId has held the write lock and if so remove it
+            if (item.doesClientHaveWriteLock(clientId)) {
+                item.writeUnlock();
+                item.removeWriter();
+            }
+        }
+    }
+
     @Override
     public void releaseLock(int l, int clientId) throws RemoteException {
-        ReentrantReadWriteLock lock = locks[l];
-
-        // check if it has the read lock
-        if (lock.getReadLockCount() > 0) {
-            // check if the this clientId has held the lock and if so remove it
-            readers.computeIfPresent(l, (key, clients) -> {
-                boolean isRemoved = clients.removeIf(reader -> reader == clientId);
-                // release the actual read locks
-                if (isRemoved) {
-                    lock.readLock().unlock();
-                }
-                return clients.isEmpty() ? null : clients;
-            });
-        }
-
-        // check if it has the client lock
-        if (lock.isWriteLocked()) {
-            // check if this clientId has held the write lock and if so remove it
-            writers.computeIfPresent(l, (key, writerId) -> {
-                if (writerId == clientId) {
-                    // release the actual write lock
-                    lock.writeLock().unlock();
-                    return null;
-                }
-                return writerId;
-            });
-
-        }
+        releaseReadLock(l, clientId);
+        releaseWriteLock(l, clientId);
     }
 
     @Override
     public String fetchElementRead(int l, int clientId) throws RemoteException {
-        return requestReadLock(l, clientId) ? array.get(l) : null;
+        return requestReadLock(l, clientId) ? array.get(l).getValue() : null;
     }
 
     @Override
     public String fetchElementWrite(int l, int clientId) throws RemoteException {
-        return requestWriteLock(l, clientId) ? array.get(l) : null;
+        return requestWriteLock(l, clientId) ? array.get(l).getValue() : null;
     }
 
     @Override
     public boolean WriteBackElement(String str, int l, int clientId) throws RemoteException {
-        ReentrantReadWriteLock lock = locks[l];
-        boolean isClientWriteLock = writers.contains(clientId);
+        ArrayItem item = array.get(l);
 
         // check if client already has the write lock
-        if (lock.isWriteLocked() && isClientWriteLock) {
+        if (item.hasWriteLock() && item.doesClientHaveWriteLock(clientId)) {
             // set value in array
-            array.set(l, str);
+            item.setValue(str);
             return true;
         }
         return false;

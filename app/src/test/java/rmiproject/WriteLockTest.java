@@ -164,5 +164,6 @@ public class WriteLockTest {
 
         assertEquals(newWrittenVal, readVal);
 
+        executorService.shutdown();
     }
 }
