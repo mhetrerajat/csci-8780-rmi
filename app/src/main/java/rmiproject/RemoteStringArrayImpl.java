@@ -23,34 +23,6 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         array = Stream.generate(() -> new ArrayItem()).limit(capacity)
                 .collect(Collectors.toCollection(ArrayList::new));
         clientCounter = new AtomicInteger(0);
-
-        // Start a separate thread to periodically check and release locks
-        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(this::checkAndReleaseLocks, 0, 5000,
-                TimeUnit.MILLISECONDS);
-    }
-
-    private void checkAndReleaseLocks() {
-        long currentTime = System.currentTimeMillis();
-
-        // Release locks for the reader
-        IntStream.range(0, array.size())
-                .forEach(index -> {
-                    ArrayItem item = array.get(index);
-                    List<Integer> staleReaders = item.getStaleReaders(currentTime);
-                    staleReaders.forEach(reader -> {
-                        releaseReadLock(index, reader); // release locks
-                        item.removeReader(reader); // remove as reader
-                    });
-
-                    // writers
-                    Boolean isStaleWriter = item.isStaleWriter(currentTime);
-                    if (isStaleWriter) {
-                        releaseWriteLock(index, item.getWriterId()); // release locks
-                        item.removeWriter(); // remove as writer
-                    }
-                });
-
     }
 
     @Override
