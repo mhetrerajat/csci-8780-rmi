@@ -20,7 +20,7 @@ public class RemoteArrayTest {
     @BeforeEach
     public void setUp() throws RemoteException {
         int capacity = 5;
-        remoteArray = new RemoteStringArrayImpl(capacity);
+        remoteArray = new RemoteStringArrayImpl(capacity, 6000);
         String[] initVals = { "a", "b", "c" };
         IntStream.range(0, initVals.length).forEach(i -> {
             try {
