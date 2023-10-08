@@ -1,10 +1,10 @@
 package rmiproject;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -15,12 +15,12 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
 
     private static final Logger logger = Logger.getLogger(RemoteStringArrayImpl.class.getName());
 
-    private ArrayList<ArrayItem> array;
+    private CopyOnWriteArrayList<ArrayItem> array;
     private AtomicInteger clientCounter;
 
     public RemoteStringArrayImpl(int capacity) throws RemoteException {
         array = Stream.generate(() -> new ArrayItem()).limit(capacity)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
         clientCounter = new AtomicInteger(0);
 
     }
@@ -37,8 +37,13 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         ArrayItem item = array.get(l);
         boolean lockAcquired = false;
         try {
-            // try to acquire lock
-            lockAcquired = item.tryReadLock();
+            // get the read lock if there are no writers
+            // if the client has write lock then it also has read permission
+            // if client already has the read lock
+            if (!item.hasWriteLock() || item.doesClientHaveWriteLock(clientId)
+                    || item.doesClientHasReadLock(clientId)) {
+                lockAcquired = true;
+            }
         } finally {
             if (lockAcquired) {
                 // register client as reader if have the read lock and mark timestamp
@@ -53,7 +58,12 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         ArrayItem item = array.get(l);
         boolean lockAcquired = false;
         try {
-            lockAcquired = item.tryWriteLock();
+
+            // if there no read locks already given
+            // if the client already have the write lock
+            if (!item.hasReadLocks() || item.doesClientHaveWriteLock(clientId)) {
+                lockAcquired = true;
+            }
         } finally {
             if (lockAcquired) {
                 // Check if the write lock is already given to any other client
@@ -76,7 +86,6 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         if (item.hasReadLocks()) {
             // Check if the client has held the lock and if so remove it
             if (item.doesClientHasReadLock(clientId)) {
-                item.readUnlock();
                 item.removeReader(clientId); // remove the client as reader
             }
         }
@@ -87,8 +96,7 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         if (item.hasWriteLock()) {
             // check if this clientId has held the write lock and if so remove it
             if (item.doesClientHaveWriteLock(clientId)) {
-                item.writeUnlock();
-                item.removeWriter();
+                item.removeWriter(); // unlock write
             }
         }
     }

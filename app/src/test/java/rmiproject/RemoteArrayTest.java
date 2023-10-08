@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -38,7 +39,8 @@ public class RemoteArrayTest {
 
         Field remoteStrArrField = RemoteStringArrayImpl.class.getDeclaredField("array");
         remoteStrArrField.setAccessible(true);
-        ArrayList<ArrayItem> actualArr = (ArrayList<ArrayItem>) remoteStrArrField.get(remoteArray);
+        CopyOnWriteArrayList<ArrayItem> actualArr = (CopyOnWriteArrayList<ArrayItem>) remoteStrArrField
+                .get(remoteArray);
 
         ArrayList<String> valuesList = (ArrayList<String>) actualArr.stream()
                 .map(ArrayItem::getValue)

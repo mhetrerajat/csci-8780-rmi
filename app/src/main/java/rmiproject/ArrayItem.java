@@ -2,28 +2,25 @@ package rmiproject;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 public class ArrayItem {
     private String value;
+    // clientId -> timestamp
     private ConcurrentHashMap<Integer, Long> readers;
     private Integer writer;
     private Long writeLockTimestamp;
-    private ReentrantReadWriteLock rwLock;
 
     private final long lockTimeout = 60000; // 60 seconds
 
     public ArrayItem() {
         this.value = "";
         this.readers = new ConcurrentHashMap<Integer, Long>();
-        this.rwLock = new ReentrantReadWriteLock();
     }
 
     public ArrayItem(String value) {
         this.value = value;
         this.readers = new ConcurrentHashMap<>();
-        this.rwLock = new ReentrantReadWriteLock();
     }
 
     // Value
@@ -36,16 +33,9 @@ public class ArrayItem {
     }
 
     // Locks
-    public ReentrantReadWriteLock getRwLock() {
-        return rwLock;
-    }
 
     public Boolean hasReadLocks() {
-        return rwLock.getReadLockCount() > 0;
-    }
-
-    public void readUnlock() {
-        rwLock.readLock().unlock();
+        return readers.size() > 0;
     }
 
     // Readers
@@ -68,9 +58,6 @@ public class ArrayItem {
                 .collect(Collectors.toList());
     }
 
-    public boolean tryReadLock() {
-        return rwLock.readLock().tryLock();
-    }
 
     // Writer
     public Integer getWriterId() {
@@ -83,15 +70,11 @@ public class ArrayItem {
     }
 
     public boolean hasWriteLock() {
-        return rwLock.isWriteLocked();
+        return writer != null;
     }
 
     public boolean doesClientHaveWriteLock(int clientId) {
         return writer != null && writer == clientId;
-    }
-
-    public void writeUnlock() {
-        rwLock.writeLock().unlock();
     }
 
     public void removeWriter() {
@@ -101,10 +84,6 @@ public class ArrayItem {
 
     public boolean isStaleWriter(long currentTime) {
         return writeLockTimestamp != null && (currentTime - writeLockTimestamp) > lockTimeout;
-    }
-
-    public boolean tryWriteLock() {
-        return rwLock.writeLock().tryLock();
     }
 
 }
