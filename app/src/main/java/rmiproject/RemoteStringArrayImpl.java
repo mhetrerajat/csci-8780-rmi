@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -22,6 +25,38 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
         array = Stream.generate(() -> new ArrayItem()).limit(capacity)
                 .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
         clientCounter = new AtomicInteger(0);
+
+        // Start a separate thread to periodically check and release locks
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(this::checkAndReleaseLocks, 0, 5000,
+                TimeUnit.MILLISECONDS);
+    }
+
+    private void checkAndReleaseLocks() {
+        long currentTime = System.currentTimeMillis();
+
+        // Release locks for the reader
+        IntStream.range(0, array.size())
+                .forEach(index -> {
+                    ArrayItem item = array.get(index);
+                    List<Integer> staleReaders = item.getStaleReaders(currentTime);
+                    staleReaders.forEach(reader -> {
+                        releaseReadLock(index, reader); // release locks
+                        logger.warning(
+                                String.format("Auto-released stale read lock of Client[%d] for array element %d",
+                                        reader, index));
+                    });
+
+                    // writers
+                    Boolean isStaleWriter = item.isStaleWriter(currentTime);
+                    if (isStaleWriter) {
+                        Integer writerId = item.getWriterId();
+                        releaseWriteLock(index, writerId); // release locks
+                        logger.warning(
+                                String.format("Auto-released stale write lock of Client[%d] for array element %d",
+                                        writerId, index));
+                    }
+                });
 
     }
 
