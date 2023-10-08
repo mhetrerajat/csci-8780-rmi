@@ -21,8 +21,11 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
     private CopyOnWriteArrayList<ArrayItem> array;
     private AtomicInteger clientCounter;
 
-    public RemoteStringArrayImpl(int capacity) throws RemoteException {
-        array = Stream.generate(() -> new ArrayItem()).limit(capacity)
+    private long lockAutoReleaseTimeout;
+
+    public RemoteStringArrayImpl(int capacity, long lockAutoReleaseTimeout) throws RemoteException {
+        this.lockAutoReleaseTimeout = lockAutoReleaseTimeout;
+        array = Stream.generate(() -> new ArrayItem(lockAutoReleaseTimeout)).limit(capacity)
                 .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
         clientCounter = new AtomicInteger(0);
 
@@ -63,7 +66,7 @@ public class RemoteStringArrayImpl implements RemoteStringArray {
     @Override
     public void insertArrayElement(int l, String str) throws RemoteException {
         // NOTE: Assumption; This method is only used by server
-        ArrayItem newItem = new ArrayItem(str);
+        ArrayItem newItem = new ArrayItem(str, lockAutoReleaseTimeout);
         array.set(l, newItem);
     }
 

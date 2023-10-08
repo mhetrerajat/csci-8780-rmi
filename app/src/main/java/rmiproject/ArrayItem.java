@@ -11,16 +11,18 @@ public class ArrayItem {
     private Integer writer;
     private Long writeLockTimestamp;
 
-    private final long lockTimeout = 6000; // 6 seconds
+    private long lockTimeout;
 
-    public ArrayItem() {
+    public ArrayItem(long lockTimeout) {
         this.value = "";
         this.readers = new ConcurrentHashMap<Integer, Long>();
+        this.lockTimeout = lockTimeout;
     }
 
-    public ArrayItem(String value) {
+    public ArrayItem(String value, long lockTimeout) {
         this.value = value;
         this.readers = new ConcurrentHashMap<>();
+        this.lockTimeout = lockTimeout;
     }
 
     // Value
@@ -57,7 +59,6 @@ public class ArrayItem {
                 .map(entry -> entry.getKey())
                 .collect(Collectors.toList());
     }
-
 
     // Writer
     public Integer getWriterId() {
