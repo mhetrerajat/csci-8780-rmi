@@ -37,9 +37,10 @@ public class RMIServerMain implements Unreferenced {
         String bindName = configReader.getRemoteObjectBindName();
         Integer arrayCapacity = configReader.getRemoteArrayCapacity();
         List<String> initArray = configReader.getRemoteArrayInitValue();
+        long lockAutoReleaseTimeout = configReader.getLockAutoReleaseTimeout();
 
         // Create an instance of the remote object
-        remoteArray = new RemoteStringArrayImpl(arrayCapacity);
+        remoteArray = new RemoteStringArrayImpl(arrayCapacity, lockAutoReleaseTimeout);
 
         // Initialize the array with the provided strings
         for (int i = 0; i < initArray.size(); i++) {

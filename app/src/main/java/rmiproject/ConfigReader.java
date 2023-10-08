@@ -21,8 +21,9 @@ public class ConfigReader {
     private final String REMOTE_OBJECT_BIND_NAME_KEY = "remoteObjectBindName";
     private final String REMOTE_ARRAY_CAPACITY_KEY = "array.capacity";
     private final String REMOTE_ARRAY_INIT_VALUE_KEY = "array.initValue";
+    private final String LOCK_RELEASE_TIMEOUT_KEY = "lock.timeout";
 
-    public ConfigReader(String configPath){
+    public ConfigReader(String configPath) {
         // Parse properties
         properties = new Properties();
         try (InputStream configFile = ConfigReader.class.getResourceAsStream(configPath)) {
@@ -35,7 +36,6 @@ public class ConfigReader {
             throw new RuntimeException(String.format("Error loading configuration from %s", configPath), e);
         }
     }
-
 
     public static String parseConfigPathFromCLI(String[] args, String defaultConfigFile) {
         Optional<String> configFileOption = Arrays.stream(args)
@@ -99,5 +99,9 @@ public class ConfigReader {
 
     public Integer getRemoteArrayCapacity() {
         return getIntProperty(REMOTE_ARRAY_CAPACITY_KEY);
+    }
+
+    public long getLockAutoReleaseTimeout() {
+        return getIntProperty(LOCK_RELEASE_TIMEOUT_KEY);
     }
 }
