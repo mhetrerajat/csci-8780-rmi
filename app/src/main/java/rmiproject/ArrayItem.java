@@ -11,7 +11,7 @@ public class ArrayItem {
     private Integer writer;
     private Long writeLockTimestamp;
 
-    private final long lockTimeout = 60000; // 60 seconds
+    private final long lockTimeout = 6000; // 6 seconds
 
     public ArrayItem() {
         this.value = "";
