@@ -15,6 +15,14 @@ gradle clean
 gradle build
 ```
 
+### Functional tests
+
+To execute functional test suite, run the following commands:
+
+```bash
+gradle test
+```
+
 ### Run the Application
 
 To run the application, follow these steps in order:
@@ -48,6 +56,39 @@ JVM:          17.0.8.1 (Homebrew 17.0.8.1+0)
 OS:           Mac OS X 13.6 x86_64
 ```
 
-## References
+## Features
 
-[Gradle Sample: Building Java Applications - Multi-Project](https://docs.gradle.org/7.6/samples/sample_building_java_applications_multi_project.html)
+### Client
+
+- Interacts with the user and performs operations on the distributed string array.
+- Communicates with the server to perform following operations:
+  - Retrieve the maximum capacity of the string array.
+  - Fetch elements from the array in "read-only" mode, ensuring proper read locks.
+  - Fetch elements from the array in "read/write" mode, ensuring proper write locks.
+  - Print strings associated with elements.
+  - Concatenate strings to elements.
+  - Attempt to write elements back to the server with success/failure feedback.
+  - Release locks held by the client on specific elements.
+  - [Additional] Retrieves the read and write locks currently held by this client
+- Takes a command-line parameter for specifying the configuration file.
+
+### Server
+
+- Manages the distributed string array with concurrency control.
+- Safeguarding concurrency by managing read and write locks for array elements while supporting all the methods required by the client  
+- Grants or denies client requests based on read/write lock availability.
+
+### General
+
+- **Functional Tests**: The project includes functional tests that simulate a multi-client environment, ensuring concurrency while maintaining the integrity of locks.
+
+- **Fair Read/Write Lock Mechanism**: The server follows a fair read/write lock mechanism to manage concurrent access to array elements. This mechanism enforces the following rules:
+  - If a client has a write lock for a particular array element, it also has a read lock for that element.
+  - Two clients cannot simultaneously hold a write lock for the same array element.
+  - Two or more clients can simultaneously hold read locks for the same element.
+  - If a client has a write lock for a particular element, no other client can have a write or read lock for that element.
+  - If a client has a read lock for an element, no client, including the one holding the read lock, can have a write lock for that element.
+
+- **Automatic Lock Release**: The server supports the automatic release of read/write locks after a certain configurable timeout duration. This feature is in place to prevent deadlock or starvation scenarios. The timeout duration can be customized through server configuration files, with a default value of 10 minutes.
+
+- **Client Lock Auto-Release**: Clients automatically release their read/write locks, if they exist, upon graceful exit. This ensures that locks are not held indefinitely, contributing to the overall system's stability and reliability.
