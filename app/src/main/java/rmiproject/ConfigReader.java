@@ -1,13 +1,15 @@
 package rmiproject;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.io.InputStream;
 
 public class ConfigReader {
 
@@ -24,13 +26,19 @@ public class ConfigReader {
     private final String LOCK_RELEASE_TIMEOUT_KEY = "lock.timeout";
 
     public ConfigReader(String configPath) {
+
+        logger.info(String.format("Loading config file path: %s", configPath));
+
         // Parse properties
         properties = new Properties();
+
         try (InputStream configFile = ConfigReader.class.getResourceAsStream(configPath)) {
             if (configFile != null) {
                 properties.load(configFile);
             } else {
-                throw new RuntimeException(String.format("%s not found in resources directory", configPath));
+                Path path = Paths.get(configPath);
+                InputStream inputStream = Files.newInputStream(path);
+                properties.load(inputStream);
             }
         } catch (IOException e) {
             throw new RuntimeException(String.format("Error loading configuration from %s", configPath), e);
@@ -38,21 +46,8 @@ public class ConfigReader {
     }
 
     public static String parseConfigPathFromCLI(String[] args, String defaultConfigFile) {
-        Optional<String> configFileOption = Arrays.stream(args)
-                .filter(arg -> arg.equals("--config"))
-                .findFirst();
-
-        if (configFileOption.isPresent()) {
-            int index = Arrays.asList(args).indexOf("--config");
-            if (index < args.length - 1) {
-                return args[index + 1]; // Use the provided configuration file
-            } else {
-                logger.severe("Error: Missing configuration file after --config option.");
-                System.exit(1);
-            }
-        }
-
-        return defaultConfigFile;
+        String configFileOption = System.getProperty("config");
+        return !configFileOption.isBlank() ? configFileOption : defaultConfigFile;
     }
 
     private String getProperty(String key) {

@@ -32,6 +32,13 @@ gradle runRMIServer
 gradle runRMIClient --console=plain
 ```
 
+Optionally, you can run with custom configs for the server and client using following commands,
+
+```bash
+gradle runRMIServer -Pconfig=$HOME/Desktop/Work/csci-8780-rmi/server-config-example.properties
+gradle runRMIClient --console=plain -Pconfig=$HOME/Desktop/Work/csci-8780-rmi/client-config-example.properties
+```
+
 ## Environment
 
 ```

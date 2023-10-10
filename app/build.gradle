@@ -64,6 +64,7 @@ tasks.register('runRMIClient', JavaExec) {
     standardInput = System.in
     standardOutput = System.out
     errorOutput = System.err
+    systemProperty 'config', project.findProperty('config')
 }
 
 // task to run the RMI Server
@@ -74,4 +75,6 @@ tasks.register('runRMIServer', JavaExec) {
 
     // Delete reference to exported remote object after all client dies
     systemProperty 'java.rmi.dgc.leaseValue', '30000'
+    systemProperty 'config', project.findProperty('config')
+
 }
